@@ -55,6 +55,47 @@ public class Utils {
         return formatter.format(date);
     }
 
+    //Wed Sep 27 20:14:27 +0000 2017
+    //DD MM HH:mm:ssZ yyyyZ
+    public static String twitterTimeToDiffFromNow (String sTime) {
+        if (sTime == null)
+            return "";
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM d hh:mm:ss Z yyyy");
+        //formatter.setLenient(false);
+        try {
+            Date date = formatter.parse(sTime);
+            long time = date.getTime();
+            long currentTime = System.currentTimeMillis();
+            long diff = currentTime-time;
+            int seconds = (int) diff/1000;
+            if (seconds < 60) {
+                if (seconds == 0) {
+                    return "now";
+                }
+                return "" + seconds + "s";
+            }
+            int minnutes = seconds/60;
+            if (minnutes <60)
+                return "" + minnutes + "m";
+
+            int hours = minnutes/60;
+            if (hours <60)
+                return "" + hours + "h";
+
+            int days = hours/24;
+            if (days < 31)
+                return "" + days + "d";
+            int months = days/31;
+            if (months < 366)
+                return "" + months + "mo";
+            int years = months /365;
+            return "" + years + "y";
+
+        } catch (ParseException ignored) {
+            return "";
+        }
+    }
+
     public static String localNytTimeToLong (String sTime) {
         if (sTime == null)
             return "";

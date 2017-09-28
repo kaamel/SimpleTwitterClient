@@ -47,9 +47,23 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="5dp"
+            android:autoLink="all"
+            android:linksClickable="true"
+            android:textColorLink="@android:color/holo_blue_dark"
             android:layout_toEndOf="@+id/ivProfileImage"
             android:text="TextView"
             android:textColor="@android:color/black"
             android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvCreatedAt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/tvTwitterHandle"
+            android:text="TextView"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            android:textStyle="italic" />
     </RelativeLayout>
 </layout>

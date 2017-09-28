@@ -8,7 +8,7 @@ import android.view.View;
 
 import com.codepath.oauth.OAuthLoginActionBarActivity;
 import com.kaamel.simpletwitterclient.R;
-import com.kaamel.simpletwitterclient.TwitterClient;
+import com.kaamel.simpletwitterclient.models.TwitterClient;
 import com.kaamel.simpletwitterclient.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {

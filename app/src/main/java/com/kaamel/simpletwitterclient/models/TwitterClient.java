@@ -1,10 +1,13 @@
-package com.kaamel.simpletwitterclient;
+package com.kaamel.simpletwitterclient.models;
 
 import android.content.Context;
 
 import com.codepath.oauth.OAuthBaseClient;
 import com.github.scribejava.apis.TwitterApi;
 import com.github.scribejava.core.builder.api.BaseApi;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.kaamel.simpletwitterclient.R;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -35,6 +38,7 @@ public class TwitterClient extends OAuthBaseClient {
 	//Twitter API end points
 	private static final String END_POINT_HOME_TIMELINE = "statuses/home_timeline.json";
 
+	private static final Gson gson = new GsonBuilder().create();
 
 	public TwitterClient(Context context) {
 		super(context, REST_API_INSTANCE,
@@ -44,14 +48,17 @@ public class TwitterClient extends OAuthBaseClient {
 				String.format(REST_CALLBACK_URL_TEMPLATE, context.getString(R.string.intent_host),
 						context.getString(R.string.intent_scheme), context.getPackageName(), FALLBACK_URL));
 	}
+
 	// CHANGE THIS
 	// DEFINE METHODS for different API endpoints here
-	public void getHomeTimeline(AsyncHttpResponseHandler handler) {
+	public void getHomeTimeline(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
 		String apiUrl = getApiUrl(END_POINT_HOME_TIMELINE);
 		// Can specify query string params directly or through RequestParams.
 		RequestParams params = new RequestParams();
-		params.put("count", "20");
-		params.put("since_id", "1");
+		params.put("count", "25");
+		params.put("since_id", Long.valueOf(sinceId));
+		if (maxId > 0)
+			params.put("max_id", Long.valueOf(maxId));
 		client.get(apiUrl, params, handler);
 	}
 

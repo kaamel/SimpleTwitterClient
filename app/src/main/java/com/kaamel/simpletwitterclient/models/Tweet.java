@@ -12,7 +12,7 @@ public class Tweet {
     public String body;
 
     @SerializedName("id")
-    public long uid;
+    public long id;
 
     @SerializedName("created_at")
     public String createdAt;

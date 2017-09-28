@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient;
+package com.kaamel.simpletwitterclient.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.databinding.ItemTweetBinding;
 import com.kaamel.simpletwitterclient.models.Tweet;
 import com.kaamel.simpletwitterclient.utils.*;
@@ -41,13 +42,15 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        holder.tvBody.setText(tweets.get(position).body);
-        String name = tweets.get(position).user.name == null?"":tweets.get(position).user.name;
+        Tweet tweet = tweets.get(position);
+        holder.tvBody.setText(tweet.body);
+        String name = tweet.user.name == null?"":tweet.user.name;
         holder.tvUserName.setText(name);
-        String twitterHnadle = tweets.get(position).user.twitterHandle == null?"":("@" + tweets.get(position).user.twitterHandle);
+        String twitterHnadle = tweet.user.twitterHandle == null?"":("@" + tweet.user.twitterHandle);
         holder.tvTwitterHandle.setText(twitterHnadle);
+        holder.tvCreatedAt.setText(Utils.twitterTimeToDiffFromNow(tweet.createdAt));
         Glide.with(context)
-                .load(tweets.get(position).user.profileImageUrl)
+                .load(tweet.user.profileImageUrl)
                 .placeholder(R.drawable.ic_launcher)
                 .error(android.R.drawable.stat_notify_error)
                 .bitmapTransform(new RoundedCornersTransformation( context, 37, 2))
@@ -68,6 +71,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
         TextView tvBody;
         TextView tvTwitterHandle;
         TextView tvUserName;
+        TextView tvCreatedAt;
         ImageView ivProfileImage;
 
         public ViewHolder(View itemView) {
@@ -75,6 +79,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
             binding = ItemTweetBinding.bind(itemView);
             tvBody = binding.tvBody;
             tvUserName = binding.tvUserName;
+            tvCreatedAt = binding.tvCreatedAt;
             tvTwitterHandle = binding.tvTwitterHandle;
             ivProfileImage = binding.ivProfileImage;
         }
