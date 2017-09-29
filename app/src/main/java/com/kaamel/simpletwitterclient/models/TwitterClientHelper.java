@@ -26,10 +26,10 @@ public class TwitterClientHelper {
     Gson gson = new GsonBuilder().create();
 
     public void getHomeTimeline(final CallbackWithTweets callbackWithTweets, long sinceId, long maxId) {
-        getHomeTimeline(callbackWithTweets, sinceId, maxId, 3);
+        getHomeTimeline(callbackWithTweets, sinceId, maxId, 3, 500);
     }
 
-    private void getHomeTimeline(final CallbackWithTweets callbackWithTweets, final long sinceId, final long maxId, final int retry) {
+    private void getHomeTimeline(final CallbackWithTweets callbackWithTweets, final long sinceId, final long maxId, final int retry, int delay) {
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -61,10 +61,11 @@ public class TwitterClientHelper {
                 if (statusCode == 429) {
                     if (retry > 0) {
                         Handler handler = new Handler();
-                        Runnable runnableCode = () -> getHomeTimeline(callbackWithTweets, sinceId, maxId, retry-1);
-                        handler.postDelayed(runnableCode, 500);
+                        Runnable runnableCode = () -> getHomeTimeline(callbackWithTweets, sinceId, maxId, retry-1, 2 * delay);
+                        handler.postDelayed(runnableCode, delay);
                         return;
                     }
+                    callbackWithTweets.onFailure(statusCode, "Too many requests. Please wait a few minutes and try again", throwable);
                 }
                 List<TwitterErrors.TwitterError> errors = gson.fromJson(errorResponse.toString(), TwitterErrors.class).errors;
                 callbackWithTweets.onFailure(statusCode, errors.get(0).errorMessage, throwable);
