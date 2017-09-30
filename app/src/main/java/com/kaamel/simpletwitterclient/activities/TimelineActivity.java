@@ -1,6 +1,8 @@
 package com.kaamel.simpletwitterclient.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -13,7 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
-import com.kaamel.simpletwitterclient.Comp0seTweetDialogFragment;
+import com.kaamel.simpletwitterclient.ComposeTweetDialogFragment;
 import com.kaamel.simpletwitterclient.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
@@ -25,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TimelineActivity extends AppCompatActivity implements
-        Comp0seTweetDialogFragment.OnTweetComposerUpdateListener, 
+        ComposeTweetDialogFragment.OnTweetComposerUpdateListener,
         TwitterClientHelper.CallbackWithTweets, SwipeRefreshLayout.OnRefreshListener  {
 
     ActivityTimelineBinding binding;
@@ -36,7 +38,11 @@ public class TimelineActivity extends AppCompatActivity implements
     private TweetAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    SharedPreferences sharedPref;
+
     EndlessRecyclerViewScrollListener scrollListener;
+
+    boolean editing = false;
 
     private static final TwitterClientHelper twitterClientHelper = new TwitterClientHelper();
     LinearLayoutManager linearLayoutManager;
@@ -49,11 +55,13 @@ public class TimelineActivity extends AppCompatActivity implements
         Toolbar myToolbar = binding.toolbar;
         setSupportActionBar(myToolbar);
 
+        sharedPref = getSharedPreferences(
+                /*getString(R.string.preference_file_key)*/ "simpletwitterclient", Context.MODE_PRIVATE);
         sab = getSupportActionBar();
         if (sab != null) {
             sab.setDisplayShowHomeEnabled(true);
-            sab.setLogo(R.drawable.twitter_logo_blue);
-            sab.setTitle("Home Timeline");
+            sab.setLogo(R.mipmap.ic_launcher_blue);
+            sab.setTitle("Home");
             sab.setDisplayUseLogoEnabled(true);
             sab.setDisplayShowTitleEnabled(true);
         }
@@ -114,14 +122,14 @@ public class TimelineActivity extends AppCompatActivity implements
     }
 
     private void composeTweet(String body) {
-        DialogFragment dialog = Comp0seTweetDialogFragment.newInstance(body);
+        DialogFragment dialog = ComposeTweetDialogFragment.newInstance(body);
         dialog.show(getSupportFragmentManager(), body);
     }
 
     public void onClickComposeTweet(View view) {
-        String savedText = "";
-        //// TODO: 9/29/17 check to see if there is a saved text is available; if not start new
-        composeTweet(savedText);
+        if (!editing)
+            composeTweet(restoreTweet());
+        editing = true;
     }
 
     private void populateTimeline(long maxId) {
@@ -134,6 +142,16 @@ public class TimelineActivity extends AppCompatActivity implements
         else {
             twitterClientHelper.getHomeTimeline(this, maxId);
         }
+    }
+
+    private void saveTweet(String body) {
+        sharedPref.edit().putString("saved_tweet", body).apply();
+    }
+
+    private String restoreTweet() {
+        String body = sharedPref.getString("saved_tweet", null);
+        sharedPref.edit().remove("saved_tweet").apply();
+        return body;
     }
 
 
@@ -170,7 +188,11 @@ public class TimelineActivity extends AppCompatActivity implements
 
     @Override
     public void onUpdate(int status, String body) {
-        if (status == 1)
+        if (status == STATUS_TWEET)
             twitterClientHelper.postTweet(body, this);
+        else if (status == STATUS_SAVE)
+            saveTweet(body);
+
+        editing = false;
     }
 }

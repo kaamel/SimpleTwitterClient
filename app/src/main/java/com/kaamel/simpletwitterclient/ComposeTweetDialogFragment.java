@@ -1,11 +1,13 @@
 package com.kaamel.simpletwitterclient;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -18,20 +20,22 @@ import android.widget.TextView;
 
 import com.kaamel.simpletwitterclient.databinding.FragmentCompseTweetDialogBinding;
 
+import static com.kaamel.simpletwitterclient.ComposeTweetDialogFragment.OnTweetComposerUpdateListener.STATUS_CANCEL;
+import static com.kaamel.simpletwitterclient.ComposeTweetDialogFragment.OnTweetComposerUpdateListener.STATUS_SAVE;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link OnTweetComposerUpdateListener} interface
  * to handle interaction events.
- * Use the {@link Comp0seTweetDialogFragment#newInstance} factory method to
+ * Use the {@link ComposeTweetDialogFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Comp0seTweetDialogFragment extends DialogFragment {
+public class ComposeTweetDialogFragment extends DialogFragment {
 
     FragmentCompseTweetDialogBinding binding;
     private static final String BODY = "body";
 
-    // TODO: Rename and change types of parameters
     private String body;
     EditText etCompose;
     TextView tvCount;
@@ -40,7 +44,7 @@ public class Comp0seTweetDialogFragment extends DialogFragment {
 
     private OnTweetComposerUpdateListener mListener;
 
-    public Comp0seTweetDialogFragment() {
+    public ComposeTweetDialogFragment() {
         // Required empty public constructor
     }
 
@@ -51,9 +55,8 @@ public class Comp0seTweetDialogFragment extends DialogFragment {
      * @param body the body of the tweet (optional)
      * @return A new instance of fragment CompseTweetDialogFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static Comp0seTweetDialogFragment newInstance(String body) {
-        Comp0seTweetDialogFragment fragment = new Comp0seTweetDialogFragment();
+    public static ComposeTweetDialogFragment newInstance(String body) {
+        ComposeTweetDialogFragment fragment = new ComposeTweetDialogFragment();
         Bundle args = new Bundle();
         args.putString(BODY, body);
         fragment.setArguments(args);
@@ -111,35 +114,26 @@ public class Comp0seTweetDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
-                    mListener.onUpdate(-1, null);
+                    String body = etCompose.getText().toString().trim();
+                    if (body.length() > 0) {
+                        displayCancelOptions(body);
+                    }
+                    else {
+                        cancelTweet();
+                        dismiss();
+                    }
                 }
-                dismiss();
             }
         });
 
         btTweet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mListener != null) {
-                    mListener.onUpdate(1, etCompose.getText().toString());
-                }
+                tweet();
                 dismiss();
             }
         });
         return binding.getRoot();
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onTweetButtonPressed(View view) {
-        if (mListener != null) {
-            mListener.onUpdate(1, etCompose.getText().toString());
-        }
-    }
-
-    public void onCancellButtonPressed(View view) {
-        if (mListener != null) {
-            mListener.onUpdate(-1, null);
-        }
     }
 
     @Override
@@ -159,6 +153,54 @@ public class Comp0seTweetDialogFragment extends DialogFragment {
         mListener = null;
     }
 
+    private void saveTweet() {
+        if (mListener != null) {
+            String body = etCompose.getText().toString().trim();
+            if (body.length()>0)
+                mListener.onUpdate(STATUS_SAVE, body);
+        }
+    }
+
+    private void tweet() {
+        if (mListener != null) {
+            String body = etCompose.getText().toString().trim();
+            if (body.length()>0)
+                mListener.onUpdate(OnTweetComposerUpdateListener.STATUS_TWEET, body);
+        }
+    }
+
+    private void cancelTweet() {
+        if (mListener != null)
+            mListener.onUpdate(STATUS_CANCEL, null);
+    }
+
+    void displayCancelOptions(String body) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setMessage("You can come back and continue if you save. Otherwise they will be discarded")
+                .setTitle("Save the text?");
+
+        // Add the buttons
+        builder.setPositiveButton(R.string.save,
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked SAVE button
+                saveTweet();
+                dismiss();
+            }
+        });
+        builder.setNegativeButton(R.string.discard
+                , new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                cancelTweet();
+                dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -170,7 +212,9 @@ public class Comp0seTweetDialogFragment extends DialogFragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnTweetComposerUpdateListener {
-        // TODO: Update argument type and name
+        public static final int STATUS_CANCEL=-1;
+        public static final int STATUS_SAVE=0;
+        public static final int STATUS_TWEET=1;
         void onUpdate(int status, String body);
     }
 }
