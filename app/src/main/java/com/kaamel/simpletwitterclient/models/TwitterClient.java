@@ -35,8 +35,13 @@ public class TwitterClient extends OAuthBaseClient {
 	// See https://developer.chrome.com/multidevice/android/intents
 	public static final String REST_CALLBACK_URL_TEMPLATE = "intent://%s#Intent;action=android.intent.action.VIEW;scheme=%s;package=%s;S.browser_fallback_url=%s;end";
 
-	//Twitter API end points
+	//Twitter API end points//////////////////////
+	// Home timeline
 	private static final String END_POINT_HOME_TIMELINE = "statuses/home_timeline.json";
+	// POST statuses/update.json
+	// status=Posting from %40apigee's API test console. It's like a command line for the Twitter API! %23apitools
+	// display_coordinates=false HTTP/1.1
+	private static final String END_POINT_POST_TWEET = "statuses/update.json";
 
 	private static final Gson gson = new GsonBuilder().create();
 
@@ -60,6 +65,21 @@ public class TwitterClient extends OAuthBaseClient {
 		if (maxId > 0)
 			params.put("max_id", Long.valueOf(maxId));
 		client.get(apiUrl, params, handler);
+	}
+
+	public void postTweet(String body, AsyncHttpResponseHandler handler) {
+		String apiUrl = getApiUrl("statuses/update.json");
+		RequestParams params = new RequestParams();
+		params.put("status", body);
+		getClient().post(apiUrl, params, handler);
+	}
+
+	public void postTweet(AsyncHttpResponseHandler handler, String body) {
+		String apiUrl = getApiUrl(END_POINT_POST_TWEET);
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("status", body);
+		client.post(apiUrl, params, handler);
 	}
 
 	/* 1. Define the endpoint URL with getApiUrl and pass a relative path to the endpoint

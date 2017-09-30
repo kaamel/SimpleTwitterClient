@@ -69,7 +69,7 @@ public class Utils {
             long diff = currentTime-time;
             int seconds = (int) diff/1000;
             if (seconds < 60) {
-                if (seconds == 0) {
+                if (seconds <= 1) {
                     return "now";
                 }
                 return "" + seconds + "s";

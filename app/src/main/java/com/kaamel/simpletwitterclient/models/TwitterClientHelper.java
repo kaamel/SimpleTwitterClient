@@ -1,6 +1,7 @@
 package com.kaamel.simpletwitterclient.models;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -85,6 +86,37 @@ public class TwitterClientHelper {
                 callbackWithTweets.onFailure(statusCode, errorStrings, throwable);
             }
         }, sinceId, maxId);
+    }
+
+    public void postTweet(String text, CallbackWithTweets callbackWithTweets) {
+        client.postTweet(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
+                callbackWithTweets.onSuccess(statusCode, tweet);
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                Log.d("Post Tweet", response.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.d("Post Tweet", responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("Post Tweet", errorResponse.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                Log.d("Post Tweet", errorResponse.toString());
+            }
+        }, text);
     }
 
     public void getHomeTimeline(final CallbackWithTweets callbackWithTweets, long maxId) {

@@ -51,7 +51,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
         holder.tvCreatedAt.setText(Utils.twitterTimeToDiffFromNow(tweet.createdAt));
         Glide.with(context)
                 .load(tweet.user.profileImageUrl)
-                .placeholder(R.drawable.ic_launcher)
+                .placeholder(R.drawable.ic_action_twitter)
                 .error(android.R.drawable.stat_notify_error)
                 .bitmapTransform(new RoundedCornersTransformation( context, 37, 2))
                 .into(holder.ivProfileImage);

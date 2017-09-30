@@ -3,12 +3,17 @@ package com.kaamel.simpletwitterclient.activities;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.Toast;
 
+import com.kaamel.simpletwitterclient.Comp0seTweetDialogFragment;
 import com.kaamel.simpletwitterclient.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
@@ -19,9 +24,12 @@ import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TimelineActivity extends AppCompatActivity implements TwitterClientHelper.CallbackWithTweets, SwipeRefreshLayout.OnRefreshListener  {
+public class TimelineActivity extends AppCompatActivity implements
+        Comp0seTweetDialogFragment.OnTweetComposerUpdateListener, 
+        TwitterClientHelper.CallbackWithTweets, SwipeRefreshLayout.OnRefreshListener  {
 
     ActivityTimelineBinding binding;
+    private ActionBar sab;
 
     private static List<Tweet> tweets;
     private RecyclerView rvTweets;
@@ -31,11 +39,24 @@ public class TimelineActivity extends AppCompatActivity implements TwitterClient
     EndlessRecyclerViewScrollListener scrollListener;
 
     private static final TwitterClientHelper twitterClientHelper = new TwitterClientHelper();
+    LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_timeline);
+
+        Toolbar myToolbar = binding.toolbar;
+        setSupportActionBar(myToolbar);
+
+        sab = getSupportActionBar();
+        if (sab != null) {
+            sab.setDisplayShowHomeEnabled(true);
+            sab.setLogo(R.drawable.twitter_logo_blue);
+            sab.setTitle("Home Timeline");
+            sab.setDisplayUseLogoEnabled(true);
+            sab.setDisplayShowTitleEnabled(true);
+        }
 
         boolean firstTime = false;
         if (tweets == null) {
@@ -46,7 +67,7 @@ public class TimelineActivity extends AppCompatActivity implements TwitterClient
         rvTweets = binding.rvTweets;
         swipeRefreshLayout = binding.srLayout;
         adapter = new TweetAdapter(tweets);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
         rvTweets.setAdapter(adapter);
 
@@ -67,30 +88,40 @@ public class TimelineActivity extends AppCompatActivity implements TwitterClient
 
         Intent intent = getIntent();
         if (intent != null) {
-            String type = intent.getStringExtra("type");
-            String action = intent.getStringExtra("action");
-            if (Intent.ACTION_SEND.equals(action) && type != null) {
-                if ("text/plain".equals(type)) {
+            processImplicitIntent(intent);
+        }
+    }
 
-                    // Make sure to check whether returned data will be null.
-                    String body = intent.getStringExtra("body");
-                    String title = intent.getStringExtra("title");
-                    if (body != null) {
-                        if (title != null)
-                            composeTweet(title + " " + body);
-                        else
-                            composeTweet(body);
-                    }
-                    else if (title != null)
-                        composeTweet(title);
+    private void processImplicitIntent(Intent intent) {
+        String type = intent.getStringExtra("type");
+        String action = intent.getStringExtra("action");
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+
+                // Make sure to check whether returned data will be null.
+                String body = intent.getStringExtra("body");
+                String title = intent.getStringExtra("title");
+                if (body != null) {
+                    if (title != null)
+                        composeTweet(title + " " + body);
+                    else
+                        composeTweet(body);
                 }
+                else if (title != null)
+                    composeTweet(title);
             }
         }
     }
 
     private void composeTweet(String body) {
-        //// TODO: 9/28/17
-        Toast.makeText(this, body, Toast.LENGTH_LONG).show();
+        DialogFragment dialog = Comp0seTweetDialogFragment.newInstance(body);
+        dialog.show(getSupportFragmentManager(), body);
+    }
+
+    public void onClickComposeTweet(View view) {
+        String savedText = "";
+        //// TODO: 9/29/17 check to see if there is a saved text is available; if not start new
+        composeTweet(savedText);
     }
 
     private void populateTimeline(long maxId) {
@@ -108,7 +139,9 @@ public class TimelineActivity extends AppCompatActivity implements TwitterClient
 
     @Override
     public void onSuccess(int statusCode, Tweet tweet) {
-
+        tweets.add(0, tweet);
+        adapter.notifyItemInserted(0);
+        linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), 0);
     }
 
     @Override
@@ -133,5 +166,11 @@ public class TimelineActivity extends AppCompatActivity implements TwitterClient
     public void onRefresh() {
         swipeRefreshLayout.setRefreshing(true);
         populateTimeline(0);
+    }
+
+    @Override
+    public void onUpdate(int status, String body) {
+        if (status == 1)
+            twitterClientHelper.postTweet(body, this);
     }
 }
