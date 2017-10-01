@@ -36,12 +36,15 @@ public class ComposeTweetDialogFragment extends DialogFragment {
 
     FragmentCompseTweetDialogBinding binding;
     private static final String BODY = "body";
+    private static final String TITLE = "title";
 
     private String body;
     EditText etCompose;
     TextView tvCount;
     ImageButton ibCancel;
     Button btTweet;
+
+    String title;
 
     private OnTweetComposerUpdateListener mListener;
 
@@ -56,10 +59,11 @@ public class ComposeTweetDialogFragment extends DialogFragment {
      * @param body the body of the tweet (optional)
      * @return A new instance of fragment CompseTweetDialogFragment.
      */
-    public static ComposeTweetDialogFragment newInstance(String body) {
+    public static ComposeTweetDialogFragment newInstance(String body, String title) {
         ComposeTweetDialogFragment fragment = new ComposeTweetDialogFragment();
         Bundle args = new Bundle();
         args.putString(BODY, body);
+        args.putString(TITLE, title);
         fragment.setArguments(args);
         return fragment;
     }
@@ -69,6 +73,7 @@ public class ComposeTweetDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             body = getArguments().getString(BODY);
+            title = getArguments().getString(TITLE);
         }
     }
 
@@ -134,6 +139,7 @@ public class ComposeTweetDialogFragment extends DialogFragment {
                 dismiss();
             }
         });
+        getDialog().setTitle(title);
         return binding.getRoot();
     }
 

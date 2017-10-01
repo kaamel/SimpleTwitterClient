@@ -1,5 +1,6 @@
 package com.kaamel.simpletwitterclient.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +31,7 @@ public class TimelineActivity extends AppCompatActivity implements
         ComposeTweetDialogFragment.OnTweetComposerUpdateListener,
         TwitterClientHelper.CallbackWithTweets, SwipeRefreshLayout.OnRefreshListener  {
 
+    private static final int SHOW_DETAIL_INTENT = 100;
     ActivityTimelineBinding binding;
     private ActionBar sab;
 
@@ -60,7 +62,7 @@ public class TimelineActivity extends AppCompatActivity implements
         sab = getSupportActionBar();
         if (sab != null) {
             sab.setDisplayShowHomeEnabled(true);
-            sab.setLogo(R.mipmap.ic_launcher_blue);
+            sab.setLogo(R.drawable.ic_twitter_logo_blue_48);
             sab.setTitle("Home");
             sab.setDisplayUseLogoEnabled(true);
             sab.setDisplayShowTitleEnabled(true);
@@ -100,6 +102,18 @@ public class TimelineActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SHOW_DETAIL_INTENT && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                String body = data.getExtras().getString("body");
+                int status = data.getExtras().getInt("status");
+                onUpdate(status, body);
+            }
+        }
+    }
+
     private void processImplicitIntent(Intent intent) {
         String type = intent.getStringExtra("type");
         String action = intent.getStringExtra("action");
@@ -122,7 +136,7 @@ public class TimelineActivity extends AppCompatActivity implements
     }
 
     private void composeTweet(String body) {
-        DialogFragment dialog = ComposeTweetDialogFragment.newInstance(body);
+        DialogFragment dialog = ComposeTweetDialogFragment.newInstance(body, (body==null || body.length() ==0)?"New tweet":"Continue editing");
         dialog.show(getSupportFragmentManager(), body);
     }
 
@@ -200,6 +214,6 @@ public class TimelineActivity extends AppCompatActivity implements
     public void onTweetClicked(int position) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra("tweet", tweets.get(position));
-        startActivity(intent);
+        startActivityForResult(intent, SHOW_DETAIL_INTENT);
     }
 }
