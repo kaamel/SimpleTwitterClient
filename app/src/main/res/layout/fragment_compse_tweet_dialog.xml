@@ -4,7 +4,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.kaamel.simpletwitterclient.ComposeTweetDialogFragment">
+        tools:context="com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment">
 
         <!-- TODO: Update blank fragment layout -->
         <ImageButton

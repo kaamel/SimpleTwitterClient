@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient;
+package com.kaamel.simpletwitterclient.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,10 +18,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.databinding.FragmentCompseTweetDialogBinding;
 
-import static com.kaamel.simpletwitterclient.ComposeTweetDialogFragment.OnTweetComposerUpdateListener.STATUS_CANCEL;
-import static com.kaamel.simpletwitterclient.ComposeTweetDialogFragment.OnTweetComposerUpdateListener.STATUS_SAVE;
+import static com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment.OnTweetComposerUpdateListener.STATUS_CANCEL;
+import static com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment.OnTweetComposerUpdateListener.STATUS_SAVE;
 
 /**
  * A simple {@link Fragment} subclass.

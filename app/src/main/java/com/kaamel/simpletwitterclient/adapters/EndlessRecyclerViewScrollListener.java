@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient;
+package com.kaamel.simpletwitterclient.adapters;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;

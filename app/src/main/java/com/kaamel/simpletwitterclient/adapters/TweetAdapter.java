@@ -2,6 +2,7 @@ package com.kaamel.simpletwitterclient.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +11,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
+import com.kaamel.simpletwitterclient.activities.TimelineActivity;
 import com.kaamel.simpletwitterclient.databinding.ItemTweetBinding;
 import com.kaamel.simpletwitterclient.models.Tweet;
-import com.kaamel.simpletwitterclient.utils.*;
-
+import com.kaamel.simpletwitterclient.models.TwitterMedia;
+import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
+import com.kaamel.simpletwitterclient.utils.Utils;
 
 import java.util.List;
 
@@ -56,6 +59,28 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
                 .bitmapTransform(new RoundedCornersTransformation( context, 37, 2))
                 .into(holder.ivProfileImage);
 
+        if (tweet.entities != null && tweet.entities.medias != null) {
+            List<TwitterMedia> medias = tweet.entities.medias;
+            if (medias.get(0) != null && "photo".equals(medias.get(0).type)) {
+                Glide.with(context)
+                        .load(medias.get(0).url)
+                        .placeholder(R.drawable.ic_action_twitter)
+                        .error(android.R.drawable.stat_notify_error)
+                        .bitmapTransform(new RoundedCornersTransformation(context, 37, 2))
+                        .into(holder.ivEmbedded);
+                holder.ivEmbedded.setVisibility(View.VISIBLE);
+            }
+            else {
+                holder.ivEmbedded.setVisibility(View.GONE);
+                if (medias.get(0) != null && "video".equals(medias.get(0).type)) {
+                    Log.d("SimpleTweeterClient", "it is a video: " + medias.get(0).url);
+                }
+            }
+        }
+        else {
+            holder.ivEmbedded.setVisibility(View.GONE);
+        }
+
         holder.binding.executePendingBindings();   // update the view now
     }
 
@@ -73,6 +98,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
         TextView tvUserName;
         TextView tvCreatedAt;
         ImageView ivProfileImage;
+        ImageView ivEmbedded;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -82,6 +108,17 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
             tvCreatedAt = binding.tvCreatedAt;
             tvTwitterHandle = binding.tvTwitterHandle;
             ivProfileImage = binding.ivProfileImage;
+            ivEmbedded = binding.ivEmbedded;
+
+            View.OnClickListener listener = v -> {
+                final int position = getAdapterPosition();
+                ((TimelineActivity) itemView.getContext()).onTweetClicked(position);
+            };
+            itemView.setOnClickListener(listener);
+            tvBody.setOnClickListener(listener);
+            ivEmbedded.setOnClickListener(v -> {
+                //// TODO: 10/1/17 open in chrome
+            });
         }
     }
 }

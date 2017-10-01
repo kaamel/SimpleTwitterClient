@@ -15,11 +15,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
-import com.kaamel.simpletwitterclient.ComposeTweetDialogFragment;
-import com.kaamel.simpletwitterclient.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.R;
+import com.kaamel.simpletwitterclient.adapters.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
 import com.kaamel.simpletwitterclient.databinding.ActivityTimelineBinding;
+import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
 import com.kaamel.simpletwitterclient.models.Tweet;
 import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
 
@@ -194,5 +194,12 @@ public class TimelineActivity extends AppCompatActivity implements
             saveTweet(body);
 
         editing = false;
+    }
+
+
+    public void onTweetClicked(int position) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("tweet", tweets.get(position));
+        startActivity(intent);
     }
 }
