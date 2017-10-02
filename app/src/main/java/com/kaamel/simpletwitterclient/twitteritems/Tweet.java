@@ -23,7 +23,7 @@ public class Tweet implements Parcelable {
     @SerializedName("user")
     public User user;
 
-    @SerializedName("entities")
+    @SerializedName("extended_entities")
     public TwitterEntities entities;
 
     protected Tweet(Parcel in) {

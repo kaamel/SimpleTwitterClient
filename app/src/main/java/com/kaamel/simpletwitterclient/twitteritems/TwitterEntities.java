@@ -20,6 +20,7 @@ public class TwitterEntities implements Parcelable {
     }
 
     protected TwitterEntities(Parcel in) {
+        medias = in.createTypedArrayList(TwitterMedia.CREATOR);
     }
 
     public static final Creator<TwitterEntities> CREATOR = new Creator<TwitterEntities>() {
@@ -41,5 +42,6 @@ public class TwitterEntities implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(medias);
     }
 }

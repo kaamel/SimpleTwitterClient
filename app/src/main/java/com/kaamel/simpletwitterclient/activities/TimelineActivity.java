@@ -69,13 +69,13 @@ public class TimelineActivity extends AppCompatActivity implements
             sab.setDisplayShowTitleEnabled(true);
         }
 
-        boolean firstTime = false;
+        boolean coldStart = false;
         if (tweets == null) {
             //just started running the app
-            TweetModel.loadTweets();
-            firstTime = true;
+            tweets = TweetModel.loadTweets();
+            coldStart = true;
         }
-        tweets = TweetModel.getTweets();
+        //tweets = TweetModel.getTweets();
 
         rvTweets = binding.rvTweets;
         swipeRefreshLayout = binding.srLayout;
@@ -97,7 +97,7 @@ public class TimelineActivity extends AppCompatActivity implements
         swipeRefreshLayout.setOnRefreshListener(this);
 
         adapter.notifyDataSetChanged();
-        if (firstTime)
+        if (coldStart)
             populateTimeline(0);
 
         Intent intent = getIntent();
@@ -158,10 +158,11 @@ public class TimelineActivity extends AppCompatActivity implements
         }
         if (maxId < 1) {
             tweets.clear();
-            TweetModel.removeall();
+            //TweetModel.removeall();
             scrollListener.resetState();
             adapter.notifyDataSetChanged();
             twitterClientHelper.getHomeTimeline(this);
+            swipeRefreshLayout.setRefreshing(true);
         }
         else {
             twitterClientHelper.getHomeTimeline(this, maxId);
@@ -185,25 +186,50 @@ public class TimelineActivity extends AppCompatActivity implements
         new TweetModel(tweet).save();
         adapter.notifyItemInserted(0);
         linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), 0);
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onSuccess(int statusCode, List<Tweet> ts) {
         swipeRefreshLayout.setRefreshing(false);
-        tweets.addAll(ts);
-        TweetModel.saveAll(ts);
-        adapter.notifyDataSetChanged();
+        int cs = tweets.size();
+        if (ts.size()>0) {
+            tweets.addAll(ts);
+            if (cs == 0)
+                TweetModel.replaceAllTweets(ts);
+            else
+                TweetModel.addUpdateTweets(ts);
+
+            adapter.notifyItemRangeInserted(cs, ts.size());
+        }
+        else if (cs == 0) {
+            tweets.addAll(TweetModel.loadTweets());
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onFailure(int statusCode, String responseString, Throwable throwable) {
         swipeRefreshLayout.setRefreshing(false);
         Toast.makeText(this, responseString, Toast.LENGTH_LONG).show();
+        if (tweets.size() == 0) {
+            tweets.addAll(TweetModel.loadTweets());
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onFailure(int statusCode, List<String> errors, Throwable throwable) {
         swipeRefreshLayout.setRefreshing(false);
+        if (errors != null && errors.size()>0)
+            Toast.makeText(this, errors.get(0), Toast.LENGTH_LONG).show();
+        else {
+            Toast.makeText(this, "Unkwon failure with error code " + statusCode, Toast.LENGTH_LONG).show();
+        }
+        if (tweets.size() == 0) {
+            tweets.addAll(TweetModel.loadTweets());
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override

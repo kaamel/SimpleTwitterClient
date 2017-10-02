@@ -1,13 +1,16 @@
 package com.kaamel.simpletwitterclient.adapters;
 
 import android.content.Context;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
@@ -28,6 +31,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
 
     private List<Tweet> tweets;
     private Context context;
+    MediaController mediaController;
 
     public TweetAdapter(List<Tweet> tweets) {
         this.tweets = tweets;
@@ -38,7 +42,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View tweetView = inflater.inflate(R.layout.item_tweet, parent, false);
-
+        mediaController= new MediaController(context);
         return new ViewHolder(tweetView);
     }
 
@@ -63,21 +67,39 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
             List<TwitterMedia> medias = tweet.entities.medias;
             if (medias.get(0) != null && "photo".equals(medias.get(0).type)) {
                 Glide.with(context)
-                        .load(medias.get(0).url)
-                        .placeholder(R.drawable.ic_action_twitter)
-                        .error(android.R.drawable.stat_notify_error)
-                        .bitmapTransform(new RoundedCornersTransformation(context, 37, 2))
-                        .into(holder.ivEmbedded);
+                            .load(medias.get(0).url)
+                            .placeholder(R.drawable.ic_action_twitter)
+                            .error(android.R.drawable.stat_notify_error)
+                            .bitmapTransform(new RoundedCornersTransformation(context, 37, 2))
+                            .into(holder.ivEmbedded);
+                holder.vvEmbedded.setVisibility(View.GONE);
                 holder.ivEmbedded.setVisibility(View.VISIBLE);
             }
-            else {
+            else if (medias.get(0) != null && "animated_gif".equals(medias.get(0).type) ||
+                    medias.get(0) != null && "video".equals(medias.get(0).type)) {
+                mediaController.setAnchorView(holder.vvEmbedded);
+                holder.vvEmbedded.setMediaController(mediaController);
+                if (tweet.entities.medias.get(0).videoInfo != null && tweet.entities.medias.get(0).videoInfo.variants != null &&
+                        tweet.entities.medias.get(0).videoInfo.variants.get(0) != null)
+                holder.vvEmbedded.setVideoURI(Uri.parse(tweet.entities.medias.get(0).videoInfo.variants.get(0).url));
+                holder.vvEmbedded.requestFocus();
+                holder.vvEmbedded.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        //mp.start();
+                    }
+                });
+                //holder.vvEmbedded.start();
+                holder.vvEmbedded.setVisibility(View.VISIBLE);
                 holder.ivEmbedded.setVisibility(View.GONE);
-                if (medias.get(0) != null && "video".equals(medias.get(0).type)) {
-                    Log.d("SimpleTweeterClient", "it is a video: " + medias.get(0).url);
-                }
+            }
+            else {
+                holder.vvEmbedded.setVisibility(View.GONE);
+                holder.ivEmbedded.setVisibility(View.GONE);
             }
         }
         else {
+            holder.vvEmbedded.setVisibility(View.GONE);
             holder.ivEmbedded.setVisibility(View.GONE);
         }
 
@@ -99,6 +121,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
         TextView tvCreatedAt;
         ImageView ivProfileImage;
         ImageView ivEmbedded;
+        VideoView vvEmbedded;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -109,13 +132,17 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
             tvTwitterHandle = binding.tvTwitterHandle;
             ivProfileImage = binding.ivProfileImage;
             ivEmbedded = binding.ivEmbedded;
+            vvEmbedded = binding.vvEmbedded;
 
             View.OnClickListener listener = v -> {
                 final int position = getAdapterPosition();
                 ((TimelineActivity) itemView.getContext()).onTweetClicked(position);
             };
-            itemView.setOnClickListener(listener);
             tvBody.setOnClickListener(listener);
+            tvCreatedAt.setOnClickListener(listener);
+            tvUserName.setOnClickListener(listener);
+            tvTwitterHandle.setOnClickListener(listener);
+            ivProfileImage.setOnClickListener(listener);
             ivEmbedded.setOnClickListener(v -> {
                 //// TODO: 10/1/17 open in chrome
             });

@@ -16,6 +16,9 @@ public class TwitterMedia implements Parcelable {
     @SerializedName("type")
     public String type;
 
+    @SerializedName("video_info")
+    public VideoInfo videoInfo;
+
     public TwitterMedia() {
 
     }
@@ -23,6 +26,7 @@ public class TwitterMedia implements Parcelable {
     protected TwitterMedia(Parcel in) {
         url = in.readString();
         type = in.readString();
+        videoInfo = in.readParcelable(VideoInfo.class.getClassLoader());
     }
 
     public static final Creator<TwitterMedia> CREATOR = new Creator<TwitterMedia>() {
@@ -46,5 +50,6 @@ public class TwitterMedia implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(url);
         dest.writeString(type);
+        dest.writeParcelable(videoInfo, 0);
     }
 }

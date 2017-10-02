@@ -52,8 +52,6 @@ public class TweetModel extends BaseModel {
 	@Column
 	String mediaType;
 
-	public static List<Tweet> tweets;
-
 	public TweetModel() {
 		super();
 	}
@@ -71,10 +69,6 @@ public class TweetModel extends BaseModel {
 			mediaType = tweet.entities.medias.get(0).type;
 			mediaUrl = tweet.entities.medias.get(0).url;
 		}
-	}
-
-    public static List<Tweet> getTweets() {
-		return tweets;
 	}
 
 	public Tweet toTweet() {
@@ -174,30 +168,32 @@ public class TweetModel extends BaseModel {
 		return tweets;
 	}
 
-	public static void saveTweets() {
+	public static void replaceAllTweets(List<Tweet> tweets) {
+		removeall();
 		for (Tweet tweet: tweets) {
 			new TweetModel(tweet).save();
 		}
 	}
 
-	public static void loadTweets() {
-		tweets = new ArrayList<>();
+	public static void addUpdateTweets(List<Tweet> tweets) {
+		for (Tweet tweet: tweets) {
+			new TweetModel(tweet).save();
+		}
+	}
+
+	public static List<Tweet> loadTweets() {
+		List<Tweet> tweets = new ArrayList<>();
 		List<TweetModel> tms = new Select().from(TweetModel.class).orderBy(TweetModel_Table.createdAt, false).limit(300).queryList();
 		for (TweetModel tm: tms) {
 			tweets.add(tm.toTweet());
 		}
+		return tweets;
 	}
 
 	public static void removeall() {
 		List<TweetModel> tms = new Select().from(TweetModel.class).orderBy(TweetModel_Table.createdAt, false).limit(300).queryList();
 		for (TweetModel tm: tms) {
 			tm.delete();
-		}
-	}
-
-	public static void saveAll(List<Tweet> ts) {
-		for (Tweet t: ts) {
-			new TweetModel(t).save();
 		}
 	}
 }
