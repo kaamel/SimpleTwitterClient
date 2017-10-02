@@ -6,6 +6,8 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kaamel.simpletwitterclient.SimpleTwitterApplication;
+import com.kaamel.simpletwitterclient.twitteritems.Tweet;
+import com.kaamel.simpletwitterclient.twitteritems.TwitterErrors;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;

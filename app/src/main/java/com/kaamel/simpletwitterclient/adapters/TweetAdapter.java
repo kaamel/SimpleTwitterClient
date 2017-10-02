@@ -13,8 +13,8 @@ import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.activities.TimelineActivity;
 import com.kaamel.simpletwitterclient.databinding.ItemTweetBinding;
-import com.kaamel.simpletwitterclient.models.Tweet;
-import com.kaamel.simpletwitterclient.models.TwitterMedia;
+import com.kaamel.simpletwitterclient.twitteritems.Tweet;
+import com.kaamel.simpletwitterclient.twitteritems.TwitterMedia;
 import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
 import com.kaamel.simpletwitterclient.utils.Utils;
 

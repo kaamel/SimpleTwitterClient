@@ -15,7 +15,7 @@ import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.databinding.ActivityDetailBinding;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
-import com.kaamel.simpletwitterclient.models.Tweet;
+import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
 import com.kaamel.simpletwitterclient.utils.Utils;
 
@@ -30,6 +30,7 @@ public class DetailActivity extends AppCompatActivity implements
     TextView tvCreatedAt;
     ImageView ivProfileImage;
     ImageButton ibReply;
+    ImageButton ibRetweet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +61,17 @@ public class DetailActivity extends AppCompatActivity implements
         tvCreatedAt = binding.tvCreatedAt;
         ivProfileImage = binding.ivProfileImage;
         ibReply = binding.ibReply;
+        ibRetweet = binding.ibRetweet;
 
         String body = tweet.body;
         String replyTo = tweet.user.twitterHandle;
         ibReply.setOnClickListener(v -> {
             DialogFragment dialog = ComposeTweetDialogFragment.newInstance("@" + replyTo + " " + body, "Replying");
+            dialog.show(getSupportFragmentManager(), body);
+        });
+
+        ibRetweet.setOnClickListener(v -> {
+            DialogFragment dialog = ComposeTweetDialogFragment.newInstance("RT " + body, "Retweeting");
             dialog.show(getSupportFragmentManager(), body);
         });
 

@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.models;
+package com.kaamel.simpletwitterclient.twitteritems;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -15,6 +15,10 @@ public class TwitterMedia implements Parcelable {
 
     @SerializedName("type")
     public String type;
+
+    public TwitterMedia() {
+
+    }
 
     protected TwitterMedia(Parcel in) {
         url = in.readString();

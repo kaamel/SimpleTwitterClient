@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.models;
+package com.kaamel.simpletwitterclient.twitteritems;
 
 import android.os.Parcel;
 import android.os.Parcelable;

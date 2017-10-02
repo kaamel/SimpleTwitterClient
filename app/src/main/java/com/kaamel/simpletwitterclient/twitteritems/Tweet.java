@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.models;
+package com.kaamel.simpletwitterclient.twitteritems;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -32,6 +32,10 @@ public class Tweet implements Parcelable {
         createdAt = in.readString();
         user = in.readParcelable(User.class.getClassLoader());
         entities = in.readParcelable(TwitterEntities.class.getClassLoader());
+    }
+
+    public Tweet() {
+
     }
 
     public static final Creator<Tweet> CREATOR = new Creator<Tweet>() {

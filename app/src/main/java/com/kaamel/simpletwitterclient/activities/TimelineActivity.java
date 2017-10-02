@@ -21,10 +21,11 @@ import com.kaamel.simpletwitterclient.adapters.EndlessRecyclerViewScrollListener
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
 import com.kaamel.simpletwitterclient.databinding.ActivityTimelineBinding;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
-import com.kaamel.simpletwitterclient.models.Tweet;
+import com.kaamel.simpletwitterclient.models.TweetModel;
 import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
+import com.kaamel.simpletwitterclient.twitteritems.Tweet;
+import com.kaamel.simpletwitterclient.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TimelineActivity extends AppCompatActivity implements
@@ -70,9 +71,11 @@ public class TimelineActivity extends AppCompatActivity implements
 
         boolean firstTime = false;
         if (tweets == null) {
-            tweets = new ArrayList<>();
+            //just started running the app
+            TweetModel.loadTweets();
             firstTime = true;
         }
+        tweets = TweetModel.getTweets();
 
         rvTweets = binding.rvTweets;
         swipeRefreshLayout = binding.srLayout;
@@ -93,6 +96,7 @@ public class TimelineActivity extends AppCompatActivity implements
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
+        adapter.notifyDataSetChanged();
         if (firstTime)
             populateTimeline(0);
 
@@ -147,8 +151,14 @@ public class TimelineActivity extends AppCompatActivity implements
     }
 
     private void populateTimeline(long maxId) {
+        if (!Utils.isNetworkAvailable(this) || !Utils.isOnline()) {
+            Toast.makeText(this, "Currently offline", Toast.LENGTH_LONG).show();
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
         if (maxId < 1) {
             tweets.clear();
+            TweetModel.removeall();
             scrollListener.resetState();
             adapter.notifyDataSetChanged();
             twitterClientHelper.getHomeTimeline(this);
@@ -172,6 +182,7 @@ public class TimelineActivity extends AppCompatActivity implements
     @Override
     public void onSuccess(int statusCode, Tweet tweet) {
         tweets.add(0, tweet);
+        new TweetModel(tweet).save();
         adapter.notifyItemInserted(0);
         linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), 0);
     }
@@ -180,6 +191,7 @@ public class TimelineActivity extends AppCompatActivity implements
     public void onSuccess(int statusCode, List<Tweet> ts) {
         swipeRefreshLayout.setRefreshing(false);
         tweets.addAll(ts);
+        TweetModel.saveAll(ts);
         adapter.notifyDataSetChanged();
     }
 

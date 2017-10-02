@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.models;
+package com.kaamel.simpletwitterclient.twitteritems;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -15,6 +15,9 @@ public class TwitterEntities implements Parcelable {
 
     @SerializedName("media")
     public List<TwitterMedia> medias;
+
+    public TwitterEntities() {
+    }
 
     protected TwitterEntities(Parcel in) {
     }

@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.models;
+package com.kaamel.simpletwitterclient.twitteritems;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -12,15 +12,15 @@ public class TwitterErrors {
     //{"errors":[{"message":"Rate limit exceeded","code":88}]}
 
     @SerializedName("errors")
-    List<TwitterError> errors;
+    public List<TwitterError> errors;
 
-    class TwitterError {
+    public class TwitterError {
 
         @SerializedName("message")
-        String errorMessage;
+        public String errorMessage;
 
         @SerializedName("code")
-        int code;
+        public int code;
     }
 
 }
