@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.kaamel.simpletwitterclient.R;
+import com.kaamel.simpletwitterclient.TweetsListInterface;
 import com.kaamel.simpletwitterclient.adapters.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
 import com.kaamel.simpletwitterclient.databinding.ActivityTimelineBinding;
@@ -30,7 +31,9 @@ import java.util.List;
 
 public class TimelineActivity extends AppCompatActivity implements
         ComposeTweetDialogFragment.OnTweetComposerUpdateListener,
-        TwitterClientHelper.CallbackWithTweets, SwipeRefreshLayout.OnRefreshListener  {
+        TwitterClientHelper.CallbackWithTweets,
+        SwipeRefreshLayout.OnRefreshListener,
+        TweetsListInterface {
 
     private static final int SHOW_DETAIL_INTENT = 100;
     ActivityTimelineBinding binding;
@@ -248,10 +251,25 @@ public class TimelineActivity extends AppCompatActivity implements
         editing = false;
     }
 
-
+    @Override
     public void onTweetClicked(int position) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra("tweet", tweets.get(position));
         startActivityForResult(intent, SHOW_DETAIL_INTENT);
+    }
+
+    @Override
+    public void onUserClicked(int position) {
+        Toast.makeText(this, "clicked user position: " + tweets.get(position).user.name, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onHashTagClicked(String hastag) {
+        Toast.makeText(this, "clicked hastag: " + hastag, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onUserClicked(String text) {
+        Toast.makeText(this, "clicked user twitter handle: " + text, Toast.LENGTH_LONG).show();
     }
 }

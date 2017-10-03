@@ -1,15 +1,18 @@
 package com.kaamel.simpletwitterclient.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
@@ -20,8 +23,10 @@ import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.twitteritems.TwitterMedia;
 import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
 import com.kaamel.simpletwitterclient.utils.Utils;
+import com.kaamel.simpletwitterclient.views.PatternEditableBuilder;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by kaamel on 9/26/17.
@@ -51,6 +56,21 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
 
         Tweet tweet = tweets.get(position);
         holder.tvBody.setText(tweet.body);
+        holder.tvBody.setTag("notclicked");
+        new PatternEditableBuilder().
+                addPattern(Pattern.compile("#(\\w+)"), Color.BLUE,
+                        text -> {
+                            ((TimelineActivity) context).onHashTagClicked(text);
+                            holder.tvBody.setTag("clicked");
+                }).into(holder.tvBody);
+
+        new PatternEditableBuilder().
+                addPattern(Pattern.compile("\\@(\\w+)"), Color.BLUE,
+                        text -> {
+                            ((TimelineActivity) context).onUserClicked(text);
+                            holder.tvBody.setTag("clicked");
+                        }).into(holder.tvBody);
+
         String name = tweet.user.name == null?"":tweet.user.name;
         holder.tvUserName.setText(name);
         String twitterHnadle = tweet.user.twitterHandle == null?"":("@" + tweet.user.twitterHandle);
@@ -122,6 +142,10 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
         ImageView ivProfileImage;
         ImageView ivEmbedded;
         VideoView vvEmbedded;
+        ImageButton ibReply;
+        ImageButton ibRetweet;
+        ImageButton ibLike;
+        ImageButton ibEmail;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -133,18 +157,52 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder>{
             ivProfileImage = binding.ivProfileImage;
             ivEmbedded = binding.ivEmbedded;
             vvEmbedded = binding.vvEmbedded;
+            ibEmail = binding.ibEmail;
+            ibLike = binding.ibLike;
+            ibReply = binding.ibReply;
+            ibRetweet = binding.ibRetweet;
 
-            View.OnClickListener listener = v -> {
+            ibEmail.setOnClickListener(v -> {
+                Toast.makeText(itemView.getContext(), "Email is clicked", Toast.LENGTH_LONG).show();
+            });
+
+            ibReply.setOnClickListener(v -> {
+                Toast.makeText(itemView.getContext(), "Reply is clicked", Toast.LENGTH_LONG).show();
+            });
+
+            ibRetweet.setOnClickListener(v -> {
+                Toast.makeText(itemView.getContext(), "Retweet is clicked", Toast.LENGTH_LONG).show();
+            });
+
+            ibLike.setOnClickListener(v -> {
+                Toast.makeText(itemView.getContext(), "Like is clicked", Toast.LENGTH_LONG).show();
+            });
+
+            View.OnClickListener detailViewListener = v -> {
                 final int position = getAdapterPosition();
                 ((TimelineActivity) itemView.getContext()).onTweetClicked(position);
             };
-            tvBody.setOnClickListener(listener);
-            tvCreatedAt.setOnClickListener(listener);
-            tvUserName.setOnClickListener(listener);
-            tvTwitterHandle.setOnClickListener(listener);
-            ivProfileImage.setOnClickListener(listener);
+
+            View.OnClickListener userListener = v -> {
+                final int position = getAdapterPosition();
+                ((TimelineActivity) itemView.getContext()).onUserClicked(position);
+            };
+
+            tvCreatedAt.setOnClickListener(detailViewListener);
+            tvUserName.setOnClickListener(userListener);
+            tvTwitterHandle.setOnClickListener(userListener);
+            ivProfileImage.setOnClickListener(userListener);
             ivEmbedded.setOnClickListener(v -> {
                 //// TODO: 10/1/17 open in chrome
+            });
+            tvBody.setOnClickListener(v -> {
+                final int position = getAdapterPosition();
+                String tag = (String) tvBody.getTag();
+                if (tag != null && tag.equals("clicked")) {
+                    tvBody.setTag("notclicked");
+                    return;
+                }
+                ((TimelineActivity) itemView.getContext()).onTweetClicked(position);
             });
         }
     }

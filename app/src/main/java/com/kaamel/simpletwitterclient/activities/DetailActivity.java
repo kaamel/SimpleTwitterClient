@@ -2,6 +2,7 @@ package com.kaamel.simpletwitterclient.activities;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
@@ -24,8 +26,10 @@ import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.twitteritems.TwitterMedia;
 import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
 import com.kaamel.simpletwitterclient.utils.Utils;
+import com.kaamel.simpletwitterclient.views.PatternEditableBuilder;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class DetailActivity extends AppCompatActivity implements
@@ -39,6 +43,8 @@ public class DetailActivity extends AppCompatActivity implements
     ImageView ivProfileImage;
     ImageButton ibReply;
     ImageButton ibRetweet;
+    ImageButton ibLike;
+    ImageButton ibEmail;
 
     ImageView ivEmbedded;
     VideoView vvEmbedded;
@@ -73,12 +79,15 @@ public class DetailActivity extends AppCompatActivity implements
         ivProfileImage = binding.ivProfileImage;
         ibReply = binding.ibReply;
         ibRetweet = binding.ibRetweet;
+        ibLike = binding.ibLike;
+        ibEmail = binding.ibEmail;
 
         ivEmbedded = binding.ivEmbedded;
         vvEmbedded = binding.vvEmbedded;
 
         String body = tweet.body;
         String replyTo = tweet.user.twitterHandle;
+
         ibReply.setOnClickListener(v -> {
             DialogFragment dialog = ComposeTweetDialogFragment.newInstance("@" + replyTo + " " + body, "Replying");
             dialog.show(getSupportFragmentManager(), body);
@@ -89,11 +98,34 @@ public class DetailActivity extends AppCompatActivity implements
             dialog.show(getSupportFragmentManager(), body);
         });
 
-        tvBody.setText(tweet.body);
+        ibLike.setOnClickListener(v -> {
+            Toast.makeText(this, "I like this tweet", Toast.LENGTH_LONG).show();
+        });
+
+        ibEmail.setOnClickListener(v -> {
+            Toast.makeText(this, "I am emailing to " + tweet.user.name, Toast.LENGTH_LONG).show();
+        });
+
+        tvBody.setText(body);
+        new PatternEditableBuilder().
+                addPattern(Pattern.compile("#(\\w+)"), Color.BLUE,
+                        text -> {
+                            Toast.makeText(this, "Clicked on hastag " + text, Toast.LENGTH_LONG).show();
+                        }).into(tvBody);
+
+        new PatternEditableBuilder().
+                addPattern(Pattern.compile("\\@(\\w+)"), Color.BLUE,
+                        text -> Toast.makeText(this, "Clicked on twitter handle " + text, Toast.LENGTH_LONG).show()).into(tvBody);
+
+        View.OnClickListener userListener = v -> {
+            Toast.makeText(this, "Clicked on user " + tweet.user.name, Toast.LENGTH_LONG).show();
+        };
         String name = tweet.user.name == null?"":tweet.user.name;
         tvUserName.setText(name);
+        tvUserName.setOnClickListener(userListener);
         String twitterHnadle = tweet.user.twitterHandle == null?"":("@" + tweet.user.twitterHandle);
         tvTwitterHandle.setText(twitterHnadle);
+        tvTwitterHandle.setOnClickListener(userListener);
         tvCreatedAt.setText(Utils.twitterTimeToDiffFromNow(tweet.createdAt));
         Glide.with(this)
                 .load(tweet.user.profileImageUrl)
@@ -101,7 +133,7 @@ public class DetailActivity extends AppCompatActivity implements
                 .error(android.R.drawable.stat_notify_error)
                 .bitmapTransform(new RoundedCornersTransformation(this, 37, 2))
                 .into(ivProfileImage);
-
+        ivProfileImage.setOnClickListener(userListener);
         MediaController mediaController = new MediaController(this);
         if (tweet.entities != null && tweet.entities.medias != null) {
             List<TwitterMedia> medias = tweet.entities.medias;
