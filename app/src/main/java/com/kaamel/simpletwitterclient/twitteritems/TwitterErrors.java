@@ -8,6 +8,7 @@ import java.util.List;
  * Created by kaamel on 9/28/17.
  */
 
+
 public class TwitterErrors {
     //{"errors":[{"message":"Rate limit exceeded","code":88}]}
 
@@ -22,5 +23,7 @@ public class TwitterErrors {
         @SerializedName("code")
         public int code;
     }
+    public TwitterErrors() {
 
+    }
 }

@@ -116,28 +116,22 @@ public class ComposeTweetDialogFragment extends DialogFragment {
                     tvCount.setTextColor(Color.BLACK);
             }
         });
-        ibCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-                    String body = etCompose.getText().toString().trim();
-                    if (body.length() > 0) {
-                        displayCancelOptions(body);
-                    }
-                    else {
-                        cancelTweet();
-                        dismiss();
-                    }
+        ibCancel.setOnClickListener(v -> {
+            if (mListener != null) {
+                String body1 = etCompose.getText().toString().trim();
+                if (body1.length() > 0) {
+                    displayCancelOptions(body1);
+                }
+                else {
+                    cancelTweet();
+                    dismiss();
                 }
             }
         });
 
-        btTweet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tweet();
-                dismiss();
-            }
+        btTweet.setOnClickListener(v -> {
+            tweet();
+            dismiss();
         });
         getDialog().setTitle(title);
         return binding.getRoot();

@@ -15,7 +15,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
@@ -23,12 +22,12 @@ import com.kaamel.simpletwitterclient.R;
 import com.kaamel.simpletwitterclient.databinding.ActivityDetailBinding;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
-import com.kaamel.simpletwitterclient.twitteritems.TwitterMedia;
 import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
 import com.kaamel.simpletwitterclient.utils.Utils;
 import com.kaamel.simpletwitterclient.views.PatternEditableBuilder;
 
-import java.util.List;
+import org.parceler.Parcels;
+
 import java.util.regex.Pattern;
 
 
@@ -42,8 +41,11 @@ public class DetailActivity extends AppCompatActivity implements
     TextView tvCreatedAt;
     ImageView ivProfileImage;
     ImageButton ibReply;
+    TextView tvReplyCount;
     ImageButton ibRetweet;
+    TextView tvRetweetCount;
     ImageButton ibLike;
+    TextView tvLikeCount;
     ImageButton ibEmail;
 
     ImageView ivEmbedded;
@@ -54,8 +56,7 @@ public class DetailActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
-        Tweet tweet = getIntent().getParcelableExtra("tweet");
-
+        Tweet tweet = Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
         Toolbar myToolbar = binding.toolbar;
         setSupportActionBar(myToolbar);
 
@@ -63,7 +64,7 @@ public class DetailActivity extends AppCompatActivity implements
         if (sab != null) {
             sab.setDisplayHomeAsUpEnabled(true);
             sab.setLogo(R.mipmap.ic_launcher_blue);
-            sab.setTitle(tweet.user.name);
+            sab.setTitle(tweet.getUser().getName());
             sab.setDisplayUseLogoEnabled(false);
             sab.setDisplayShowTitleEnabled(true);
 
@@ -77,16 +78,21 @@ public class DetailActivity extends AppCompatActivity implements
         tvTwitterHandle = binding.tvTwitterHandle;
         tvCreatedAt = binding.tvCreatedAt;
         ivProfileImage = binding.ivProfileImage;
-        ibReply = binding.ibReply;
-        ibRetweet = binding.ibRetweet;
-        ibLike = binding.ibLike;
-        ibEmail = binding.ibEmail;
+        ibReply = binding.layout.ibReply;
+        tvReplyCount = binding.layout.tvReplyCount;
+        ibRetweet = binding.layout.ibRetweet;
+        tvRetweetCount = binding.layout.tvRetwetCount;
+        ibLike = binding.layout.ibLike;
+        tvLikeCount = binding.layout.tvLikeCount;
+        ibEmail = binding.layout.ibEmail;
+
+
 
         ivEmbedded = binding.ivEmbedded;
         vvEmbedded = binding.vvEmbedded;
 
-        String body = tweet.body;
-        String replyTo = tweet.user.twitterHandle;
+        String body = tweet.getBody();
+        String replyTo = tweet.getUser().getTwitterHandle();
 
         ibReply.setOnClickListener(v -> {
             DialogFragment dialog = ComposeTweetDialogFragment.newInstance("@" + replyTo + " " + body, "Replying");
@@ -99,81 +105,107 @@ public class DetailActivity extends AppCompatActivity implements
         });
 
         ibLike.setOnClickListener(v -> {
-            Toast.makeText(this, "I like this tweet", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "I like this tweet", Toast.LENGTH_LONG).show();
+            sendToMainActivity(tweet, "like", null);
         });
 
         ibEmail.setOnClickListener(v -> {
-            Toast.makeText(this, "I am emailing to " + tweet.user.name, Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "I am emailing to " + tweet.getUser().getName(), Toast.LENGTH_LONG).show();
+            sendToMainActivity(tweet, "email", null);
         });
 
         tvBody.setText(body);
         new PatternEditableBuilder().
                 addPattern(Pattern.compile("#(\\w+)"), Color.BLUE,
                         text -> {
-                            Toast.makeText(this, "Clicked on hastag " + text, Toast.LENGTH_LONG).show();
+                            sendToMainActivity(tweet, "hashtag", text);
                         }).into(tvBody);
 
         new PatternEditableBuilder().
                 addPattern(Pattern.compile("\\@(\\w+)"), Color.BLUE,
-                        text -> Toast.makeText(this, "Clicked on twitter handle " + text, Toast.LENGTH_LONG).show()).into(tvBody);
+                        text ->  {
+                            sendToMainActivity(tweet, "user_handle", text);
+                }).into(tvBody);
 
-        View.OnClickListener userListener = v -> {
-            Toast.makeText(this, "Clicked on user " + tweet.user.name, Toast.LENGTH_LONG).show();
+        View.OnClickListener userNameListener = v -> {
+            sendToMainActivity(tweet, "user_name", null);
         };
-        String name = tweet.user.name == null?"":tweet.user.name;
+
+        View.OnClickListener userProfileListener = v -> {
+            sendToMainActivity(tweet, "user_profile", tweet.getUser().getName());
+        };
+
+        View.OnClickListener userHandleListener = v -> {
+            sendToMainActivity(tweet, "user_handle", null);
+        };
+
+        View.OnClickListener userLikeListener = v -> {
+            sendToMainActivity(tweet, "like", tweet.getUser().getName());
+        };
+
+        View.OnClickListener userEmailListener = v -> {
+            sendToMainActivity(tweet, "email", tweet.getUser().getName());
+        };
+
+        String name = tweet.getUser().getName() == null?"": tweet.getUser().getName();
         tvUserName.setText(name);
-        tvUserName.setOnClickListener(userListener);
-        String twitterHnadle = tweet.user.twitterHandle == null?"":("@" + tweet.user.twitterHandle);
+        tvUserName.setOnClickListener(userNameListener);
+        String twitterHnadle = tweet.getUser().getTwitterHandle() == null?"":("@" + tweet.getUser().getTwitterHandle());
         tvTwitterHandle.setText(twitterHnadle);
-        tvTwitterHandle.setOnClickListener(userListener);
-        tvCreatedAt.setText(Utils.twitterTimeToDiffFromNow(tweet.createdAt));
+        tvTwitterHandle.setOnClickListener(userHandleListener);
+        tvCreatedAt.setText(Utils.twitterTimeToDiffFromNow(tweet.getCreatedAt()));
         Glide.with(this)
-                .load(tweet.user.profileImageUrl)
+                .load(tweet.getUser().getProfileImageUrl())
                 .placeholder(R.drawable.ic_action_twitter)
                 .error(android.R.drawable.stat_notify_error)
                 .bitmapTransform(new RoundedCornersTransformation(this, 37, 2))
                 .into(ivProfileImage);
-        ivProfileImage.setOnClickListener(userListener);
+        ivProfileImage.setOnClickListener(userProfileListener);
         MediaController mediaController = new MediaController(this);
-        if (tweet.entities != null && tweet.entities.medias != null) {
-            List<TwitterMedia> medias = tweet.entities.medias;
-            if (medias.get(0) != null && "photo".equals(medias.get(0).type)) {
-                Glide.with(this)
-                        .load(medias.get(0).url)
-                        .placeholder(R.drawable.ic_action_twitter)
-                        .error(android.R.drawable.stat_notify_error)
-                        .bitmapTransform(new RoundedCornersTransformation(this, 37, 2))
-                        .into(ivEmbedded);
-                vvEmbedded.setVisibility(View.GONE);
-                ivEmbedded.setVisibility(View.VISIBLE);
-            }
-            else if (medias.get(0) != null && "animated_gif".equals(medias.get(0).type) ||
-                    medias.get(0) != null && "video".equals(medias.get(0).type)) {
-                mediaController.setAnchorView(vvEmbedded);
-                vvEmbedded.setMediaController(mediaController);
-                if (tweet.entities.medias.get(0).videoInfo != null && tweet.entities.medias.get(0).videoInfo.variants != null &&
-                        tweet.entities.medias.get(0).videoInfo.variants.get(0) != null)
-                    vvEmbedded.setVideoURI(Uri.parse(tweet.entities.medias.get(0).videoInfo.variants.get(0).url));
-                vvEmbedded.requestFocus();
-                vvEmbedded.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        //mp.start();
-                    }
-                });
-                //holder.vvEmbedded.start();
-                vvEmbedded.setVisibility(View.VISIBLE);
-                ivEmbedded.setVisibility(View.GONE);
-            }
-            else {
-                vvEmbedded.setVisibility(View.GONE);
-                ivEmbedded.setVisibility(View.GONE);
-            }
+
+        if ("photo".equals(tweet.getMediaType())) {
+            Glide.with(this)
+                    .load(tweet.getMediaUrl())
+                    .placeholder(R.drawable.ic_action_twitter)
+                    .error(android.R.drawable.stat_notify_error)
+                    .bitmapTransform(new RoundedCornersTransformation(this, 37, 2))
+                    .into(ivEmbedded);
+            vvEmbedded.setVisibility(View.GONE);
+            ivEmbedded.setVisibility(View.VISIBLE);
+        }
+        else if ("video".equals(tweet.getMediaType()) || "animated_gif".equals(tweet.getMediaType())) {
+            mediaController.setAnchorView(vvEmbedded);
+            vvEmbedded.setMediaController(mediaController);
+//            if (tweet.videoUrl != null)
+                vvEmbedded.setVideoURI(Uri.parse(tweet.getVideoUrl()));
+//            else
+//                vvEmbedded.setVideoURI(Uri.parse(tweet.mediaType));
+            vvEmbedded.requestFocus();
+            vvEmbedded.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                }
+            });
+            //holder.vvEmbedded.start();
+            vvEmbedded.setVisibility(View.VISIBLE);
+            ivEmbedded.setVisibility(View.GONE);
         }
         else {
             vvEmbedded.setVisibility(View.GONE);
             ivEmbedded.setVisibility(View.GONE);
         }
+
+        if (tweet.getReplyCount() >0 )
+            tvReplyCount.setText(String.valueOf(tweet.getReplyCount()));
+        if (tweet.getRetweetCount() > 0)
+            tvRetweetCount.setText(String.valueOf(tweet.getRetweetCount()));
+        if (tweet.getFavoritCount() > 0)
+            tvLikeCount.setText(String.valueOf(tweet.getFavoritCount()));
+        if (tweet.isFavorited())
+            ibLike.setImageResource(R.drawable.ic_action_twitter_like_red);
+        ibLike.setOnClickListener(userLikeListener);
+        ibEmail.setOnClickListener(userEmailListener);
     }
 
     @Override
@@ -183,11 +215,22 @@ public class DetailActivity extends AppCompatActivity implements
         if (body != null) {
             if (body.trim().length() > 0) {
                 Intent intent = new Intent();
+                intent.putExtra("request", "edit");
                 intent.putExtra("body", body.trim());
                 intent.putExtra("status", status);
                 setResult(RESULT_OK, intent);
             }
         }
         finish();
+    }
+
+    void sendToMainActivity(Tweet tweet, String action, String data) {
+        Intent intent = new Intent();
+        intent.setAction("com.kaamel.DETAIL_ACTIVTY_NOTIFICATION");
+        intent.putExtra("tweet", Parcels.wrap(tweet));
+        intent.putExtra("action", action);
+        if (data != null)
+            intent.putExtra("data", data);
+        sendBroadcast(intent);
     }
 }

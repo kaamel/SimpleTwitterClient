@@ -1,66 +1,170 @@
 package com.kaamel.simpletwitterclient.twitteritems;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import com.kaamel.simpletwitterclient.models.TwitterDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
-import com.google.gson.annotations.SerializedName;
+import org.parceler.Parcel;
+
+import java.util.List;
 
 /**
  * Created by kaamel on 9/26/17.
  */
 
-public class Tweet implements Parcelable {
+@Table(database = TwitterDatabase.class)
+@Parcel(analyze={Tweet.class})
+public class Tweet extends BaseModel {
 
-    @SerializedName("text")
-    public String body;
+    @Column
+    String body;
 
-    @SerializedName("id")
-    public long id;
+    @PrimaryKey
+    @Column
+    long id;
 
-    @SerializedName("created_at")
-    public String createdAt;
+    @Column
+    String createdAt;
 
-    @SerializedName("user")
-    public User user;
+    @Column
+    @ForeignKey(saveForeignKeyModel = true)
+    User user;
 
-    @SerializedName("extended_entities")
-    public TwitterEntities entities;
+    @Column
+    String mediaUrl;
 
-    protected Tweet(Parcel in) {
-        body = in.readString();
-        id = in.readLong();
-        createdAt = in.readString();
-        user = in.readParcelable(User.class.getClassLoader());
-        entities = in.readParcelable(TwitterEntities.class.getClassLoader());
-    }
+    @Column
+    String mediaType;
+
+    @Column
+    int videoWidth;
+
+    @Column
+    int videoHeight;
+
+    @Column
+    long videoDuration;
+
+    @Column
+    int videoBitrate;
+
+    @Column
+    String videoContentType;
+
+    @Column
+    String videoUrl;
+
+    //////////////////////////////////////////////////////////////////
+    //Expanded values for part 2
+    //"favorite_count":1138
+    //"reply_count":1585
+    //"retweet_count":1585
+    //////////////////////////////////////////////////////////////////
+
+    @Column
+    int favoritCount;
+
+    @Column
+    int replyCount;
+
+    @Column
+    int retweetCount;
+
+    @Column
+    boolean favorited;
 
     public Tweet() {
 
     }
 
-    public static final Creator<Tweet> CREATOR = new Creator<Tweet>() {
-        @Override
-        public Tweet createFromParcel(Parcel in) {
-            return new Tweet(in);
-        }
-
-        @Override
-        public Tweet[] newArray(int size) {
-            return new Tweet[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
+    public long getId() {
+        return id;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(body);
-        dest.writeLong(id);
-        dest.writeString(createdAt);
-        dest.writeParcelable(user, 0);
-        dest.writeParcelable(entities, 0);
+    public String getBody() {
+        return body;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public int getVideoWidth() {
+        return videoWidth;
+    }
+
+    public int getVideoHeight() {
+        return videoHeight;
+    }
+
+    public long getVideoDuration() {
+        return videoDuration;
+    }
+
+    public int getVideoBitrate() {
+        return videoBitrate;
+    }
+
+    public String getVideoContentType() {
+        return videoContentType;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public boolean isFavorited() {
+        return favorited;
+    }
+
+    public int getFavoritCount() {
+        return favoritCount;
+    }
+
+    public int getReplyCount() {
+        return replyCount;
+    }
+
+    public int getRetweetCount() {
+        return retweetCount;
+    }
+
+    public static List<Tweet> recentTweets(int howMany) {
+        return new Select().from(Tweet.class).orderBy(Tweet_Table.createdAt, false).limit(howMany).queryList();
+    }
+
+    public static void replaceAllTweets(List<Tweet> tweets) {
+        Delete.table(Tweet.class);
+        for (Tweet tweet: tweets) {
+            tweet.save();
+        }
+    }
+
+    public static void addUpdateTweets(List<Tweet> tweets) {
+        for (Tweet tweet : tweets) {
+            //TweetNew tweet = new Select().from(TweetNew.class).where(TweetNew_Table.id.is(tweetNew.id)).querySingle();
+            tweet.save();
+        }
+    }
+
+    public static void removeallTweets() {
+        Delete.table(Tweet.class);
     }
 }

@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kaamel.simpletwitterclient.R;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 /*
@@ -38,6 +39,16 @@ public class TwitterClient extends OAuthBaseClient {
 	//Twitter API end points//////////////////////
 	// Home timeline
 	private static final String END_POINT_HOME_TIMELINE = "statuses/home_timeline.json";
+	// Home timeline
+	private static final String END_POINT_MENTIONS_TIMELINE = "statuses/mentions_timeline.json";
+	// User timeline
+	private static final String END_POINT_USER_TIMELINE = "statuses/user_timeline.json";
+	// User Lookup
+	private static final String END_POINT_USERS_LOOKUP = "statuses/mentions_timeline.json";
+
+	//account/verify_credentials.json
+	private static final String END_POINT_USER_PROFILE = "account/verify_credentials.json";
+
 	// POST statuses/update.json
 	// status=Posting from %40apigee's API test console. It's like a command line for the Twitter API! %23apitools
 	// display_coordinates=false HTTP/1.1
@@ -54,16 +65,47 @@ public class TwitterClient extends OAuthBaseClient {
 						context.getString(R.string.intent_scheme), context.getPackageName(), FALLBACK_URL));
 	}
 
-	// CHANGE THIS
-	// DEFINE METHODS for different API endpoints here
+	/**
+	 *
+	 * @param handler will be called back
+	 * @param sinceId limit the results to tweet ids more than this (newer tweets than this one)
+	 * @param maxId limit the results to tweet ids less than this (tweets older than this one
+	 */
 	public void getHomeTimeline(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
-		String apiUrl = getApiUrl(END_POINT_HOME_TIMELINE);
+		getCallTweetRequest(handler, sinceId, maxId, END_POINT_HOME_TIMELINE);
+	}
+
+	public void getMentionsTimeline(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
+		getCallTweetRequest(handler, sinceId, maxId, END_POINT_MENTIONS_TIMELINE);
+	}
+
+	private void getCallTweetRequest(AsyncHttpResponseHandler handler, long sinceId, long maxId, String endPoint) {
+		String apiUrl = getApiUrl(endPoint);
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("count", "25");
+		params.put("since_id", Long.valueOf(sinceId));
+		if (maxId > 1)
+			params.put("max_id", Long.valueOf(maxId));
+		client.get(apiUrl, params, handler);
+	}
+
+	private void userLookupById(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
+		String apiUrl = getApiUrl(END_POINT_USERS_LOOKUP);
 		// Can specify query string params directly or through RequestParams.
 		RequestParams params = new RequestParams();
 		params.put("count", "25");
 		params.put("since_id", Long.valueOf(sinceId));
 		if (maxId > 0)
 			params.put("max_id", Long.valueOf(maxId));
+		client.get(apiUrl, params, handler);
+	}
+
+	public void getSelf(AsyncHttpResponseHandler handler) {
+		String apiUrl = getApiUrl(END_POINT_USER_PROFILE);
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("count", "25");
 		client.get(apiUrl, params, handler);
 	}
 
@@ -80,6 +122,15 @@ public class TwitterClient extends OAuthBaseClient {
 		RequestParams params = new RequestParams();
 		params.put("status", body);
 		client.post(apiUrl, params, handler);
+	}
+
+	public void getTimeline(String which, JsonHttpResponseHandler jsonHttpResponseHandler, long sinceId, long maxId) {
+		if ("home".equals(which)) {
+			getHomeTimeline(jsonHttpResponseHandler, sinceId, maxId);
+		}
+		else if ("mentions".equals(which)) {
+			getMentionsTimeline(jsonHttpResponseHandler, sinceId, maxId);
+		}
 	}
 
 	/* 1. Define the endpoint URL with getApiUrl and pass a relative path to the endpoint

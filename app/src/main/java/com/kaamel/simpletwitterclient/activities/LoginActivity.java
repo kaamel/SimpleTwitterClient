@@ -8,8 +8,8 @@ import android.view.View;
 
 import com.codepath.oauth.OAuthLoginActionBarActivity;
 import com.kaamel.simpletwitterclient.R;
-import com.kaamel.simpletwitterclient.models.TwitterClient;
 import com.kaamel.simpletwitterclient.databinding.ActivityLoginBinding;
+import com.kaamel.simpletwitterclient.models.TwitterClient;
 
 public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 
@@ -35,7 +35,8 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 	@Override
 	public void onLoginSuccess() {
 		//Toast.makeText(this, "Logged in succerssfully", Toast.LENGTH_LONG).show();
-		Intent intent = new Intent(this, TimelineActivity.class);
+		//Intent intent = new Intent(this, TimelineActivity.class);
+		Intent intent = new Intent(this, MainActivity.class);
         Intent i = getIntent();
         if (i!=null) {
             intent.putExtra("action", i.getAction());

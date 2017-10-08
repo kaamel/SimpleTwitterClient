@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_marginTop="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageButton
+            android:id="@+id/ibReply"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="42dp"
+            android:background="#00FFFFFF"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/media"
+            app:srcCompat="@drawable/ic_action_twitter_reply"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            android:layout_marginStart="42dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvReplyCount"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginLeft="0dp"
+            app:layout_constraintLeft_toRightOf="@+id/ibReply"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/ibRetweet"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="#00FFFFFF"
+            app:srcCompat="@drawable/ic_action_twitter_retweet"
+            app:layout_constraintLeft_toRightOf="@+id/ibReply"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.187"
+            app:layout_constraintTop_toBottomOf="@+id/media"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvRetwetCount"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginLeft="0dp"
+            app:layout_constraintLeft_toRightOf="@+id/ibRetweet"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/ibLike"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="#00FFFFFF"
+            app:srcCompat="@drawable/ic_action_twitter_like"
+            app:layout_constraintTop_toBottomOf="@+id/media"
+            app:layout_constraintLeft_toRightOf="@+id/ibRetweet"
+            android:layout_marginLeft="36dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.18"
+            android:layout_marginStart="36dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvLikeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginLeft="0dp"
+            app:layout_constraintLeft_toRightOf="@+id/ibLike"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/ibEmail"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="#00FFFFFF"
+            app:srcCompat="@drawable/ic_action_email"
+            app:layout_constraintTop_toBottomOf="@+id/media"
+            app:layout_constraintLeft_toRightOf="@+id/ibLike"
+            android:layout_marginLeft="48dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.312"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="8dp" />
+
+
+    </android.support.constraint.ConstraintLayout>
+
+</layout>

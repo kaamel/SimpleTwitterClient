@@ -22,10 +22,11 @@ import com.kaamel.simpletwitterclient.adapters.EndlessRecyclerViewScrollListener
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
 import com.kaamel.simpletwitterclient.databinding.ActivityTimelineBinding;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
-import com.kaamel.simpletwitterclient.models.TweetModel;
 import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.utils.Utils;
+
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class TimelineActivity extends AppCompatActivity implements
         boolean coldStart = false;
         if (tweets == null) {
             //just started running the app
-            tweets = TweetModel.loadTweets();
+            tweets = Tweet.recentTweets(20);
             coldStart = true;
         }
         //tweets = TweetModel.getTweets();
@@ -92,7 +93,7 @@ public class TimelineActivity extends AppCompatActivity implements
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
-                populateTimeline(tweets.get(tweets.size()-1).id);
+                populateTimeline(tweets.get(tweets.size() - 1).getId());
             }
         };
         rvTweets.setOnScrollListener(scrollListener);
@@ -164,11 +165,11 @@ public class TimelineActivity extends AppCompatActivity implements
             //TweetModel.removeall();
             scrollListener.resetState();
             adapter.notifyDataSetChanged();
-            twitterClientHelper.getHomeTimeline(this);
+            twitterClientHelper.getHomeTimeline(this, "");
             swipeRefreshLayout.setRefreshing(true);
         }
         else {
-            twitterClientHelper.getHomeTimeline(this, maxId);
+            twitterClientHelper.getHomeTimeline(this, maxId, "");
         }
     }
 
@@ -184,45 +185,45 @@ public class TimelineActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onSuccess(int statusCode, Tweet tweet) {
+    public void onSuccess(int statusCode, Tweet tweet, String des) {
         tweets.add(0, tweet);
-        new TweetModel(tweet).save();
+        tweet.save();
         adapter.notifyItemInserted(0);
         linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), 0);
         swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
-    public void onSuccess(int statusCode, List<Tweet> ts) {
+    public void onSuccess(int statusCode, List<Tweet> ts, String des) {
         swipeRefreshLayout.setRefreshing(false);
         int cs = tweets.size();
         if (ts.size()>0) {
             tweets.addAll(ts);
             if (cs == 0)
-                TweetModel.replaceAllTweets(ts);
+                Tweet.replaceAllTweets(ts);
             else
-                TweetModel.addUpdateTweets(ts);
+                Tweet.addUpdateTweets(ts);
 
             adapter.notifyItemRangeInserted(cs, ts.size());
         }
         else if (cs == 0) {
-            tweets.addAll(TweetModel.loadTweets());
+            tweets.addAll(Tweet.recentTweets(20));
             adapter.notifyDataSetChanged();
         }
     }
 
     @Override
-    public void onFailure(int statusCode, String responseString, Throwable throwable) {
+    public void onFailure(int statusCode, String responseString, Throwable throwable, String des) {
         swipeRefreshLayout.setRefreshing(false);
         Toast.makeText(this, responseString, Toast.LENGTH_LONG).show();
         if (tweets.size() == 0) {
-            tweets.addAll(TweetModel.loadTweets());
+            tweets.addAll(Tweet.recentTweets(20));
             adapter.notifyDataSetChanged();
         }
     }
 
     @Override
-    public void onFailure(int statusCode, List<String> errors, Throwable throwable) {
+    public void onFailure(int statusCode, List<String> errors, Throwable throwable, String des) {
         swipeRefreshLayout.setRefreshing(false);
         if (errors != null && errors.size()>0)
             Toast.makeText(this, errors.get(0), Toast.LENGTH_LONG).show();
@@ -230,7 +231,7 @@ public class TimelineActivity extends AppCompatActivity implements
             Toast.makeText(this, "Unkwon failure with error code " + statusCode, Toast.LENGTH_LONG).show();
         }
         if (tweets.size() == 0) {
-            tweets.addAll(TweetModel.loadTweets());
+            tweets.addAll(Tweet.recentTweets(20));
             adapter.notifyDataSetChanged();
         }
     }
@@ -244,7 +245,7 @@ public class TimelineActivity extends AppCompatActivity implements
     @Override
     public void onUpdate(int status, String body) {
         if (status == STATUS_TWEET)
-            twitterClientHelper.postTweet(body, this);
+            twitterClientHelper.postTweet(body, this, "");
         else if (status == STATUS_SAVE)
             saveTweet(body);
 
@@ -254,13 +255,13 @@ public class TimelineActivity extends AppCompatActivity implements
     @Override
     public void onTweetClicked(int position) {
         Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("tweet", tweets.get(position));
+        intent.putExtra("tweet", Parcels.wrap(tweets.get(position)));
         startActivityForResult(intent, SHOW_DETAIL_INTENT);
     }
 
     @Override
     public void onUserClicked(int position) {
-        Toast.makeText(this, "clicked user position: " + tweets.get(position).user.name, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "clicked user position: " + tweets.get(position).getUser().getName(), Toast.LENGTH_LONG).show();
     }
 
     @Override

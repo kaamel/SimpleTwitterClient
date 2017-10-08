@@ -67,28 +67,28 @@ public class Utils {
             long time = date.getTime();
             long currentTime = System.currentTimeMillis();
             long diff = currentTime-time;
-            int seconds = (int) diff/1000;
+            long seconds = diff/1000;
             if (seconds < 60) {
                 if (seconds <= 1) {
                     return "now";
                 }
                 return "" + seconds + "s";
             }
-            int minnutes = seconds/60;
+            long minnutes = seconds/60;
             if (minnutes <60)
                 return "" + minnutes + "m";
 
-            int hours = minnutes/60;
-            if (hours <60)
+            long hours = minnutes/60;
+            if (hours <24)
                 return "" + hours + "h";
 
-            int days = hours/24;
+            long days = hours/24;
             if (days < 31)
                 return "" + days + "d";
-            int months = days/31;
-            if (months < 366)
+            long months = days/31;
+            if (months < 13)
                 return "" + months + "mo";
-            int years = months /365;
+            long years = months /12;
             return "" + years + "y";
 
         } catch (ParseException ignored) {
