@@ -28,6 +28,68 @@ import cz.msebera.android.httpclient.Header;
 
 public class TwitterClientHelper {
 
+    public void getUserTimeline(final CallbackWithTweets callbackWithTweets, long uid, String twitterHanele, long maxId, String frgName) {
+        getUserTimeline(callbackWithTweets, uid, twitterHanele, 1, maxId, 3, 500, frgName);
+    }
+
+    private void getUserTimeline(CallbackWithTweets callbackWithTweets, long uid, String twitterHanele, int sinceId, long maxId, int retry, int delay, String frgName) {
+        client.getUserTimeline(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
+                callbackWithTweets.onSuccess(statusCode, tweet, frgName);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                int count = response.length();
+                List<Tweet> tweets = new ArrayList<>();
+                for (int i = 0; i<count; i++) {
+                    try {
+                        tweets.add(gson.fromJson(response.get(i).toString(), Tweet.class));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                callbackWithTweets.onSuccess(statusCode, tweets, frgName);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                callbackWithTweets.onFailure(statusCode, responseString, throwable, frgName);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (statusCode == 429) {
+                    if (retry > 0) {
+                        Handler handler = new Handler();
+                        Runnable runnableCode = () -> getUserTimeline(callbackWithTweets, uid, twitterHanele, sinceId, maxId, retry-1, 2 * delay, frgName);
+                        handler.postDelayed(runnableCode, delay);
+                        return;
+                    }
+                    callbackWithTweets.onFailure(statusCode, "Too many requests. Please wait a few minutes and try again", throwable, frgName);
+                }
+                List<TwitterErrors.TwitterError> errors = gson.fromJson(errorResponse.toString(), TwitterErrors.class).errors;
+                callbackWithTweets.onFailure(statusCode, errors.get(0).errorMessage, throwable, frgName);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                int count = errorResponse.length();
+                List<String> errorStrings = new ArrayList<>();
+                for (int i = 0; i<count; i++) {
+                    try {
+                        errorStrings.add(gson.fromJson(errorResponse.get(i).toString(), String.class));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                callbackWithTweets.onFailure(statusCode, errorStrings, throwable, frgName);
+            }
+        }, uid, twitterHanele, sinceId, maxId);
+    }
+
     private TwitterClient client = SimpleTwitterApplication.getRestClient();
     private Gson gson = new GsonBuilder().registerTypeAdapter(Tweet.class, new TweetJsonSerializer()).registerTypeAdapter(Tweet.class, new TweetJsonDeserializer()).create();
 

@@ -72,14 +72,18 @@ public class TwitterClient extends OAuthBaseClient {
 	 * @param maxId limit the results to tweet ids less than this (tweets older than this one
 	 */
 	public void getHomeTimeline(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
-		getCallTweetRequest(handler, sinceId, maxId, END_POINT_HOME_TIMELINE);
+		getCallTweetRequest(handler, -1, null, sinceId, maxId, END_POINT_HOME_TIMELINE);
 	}
 
 	public void getMentionsTimeline(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
-		getCallTweetRequest(handler, sinceId, maxId, END_POINT_MENTIONS_TIMELINE);
+		getCallTweetRequest(handler, -1, null, sinceId, maxId, END_POINT_MENTIONS_TIMELINE);
 	}
 
-	private void getCallTweetRequest(AsyncHttpResponseHandler handler, long sinceId, long maxId, String endPoint) {
+	public void getUserTimeline(AsyncHttpResponseHandler handler, long uid, String handle, long sinceId, long maxId) {
+		getCallTweetRequest(handler, uid, handle, sinceId, maxId, END_POINT_USER_TIMELINE);
+	}
+
+	private void getCallTweetRequest(AsyncHttpResponseHandler handler, long uid, String twitterHandle, long sinceId, long maxId, String endPoint) {
 		String apiUrl = getApiUrl(endPoint);
 		// Can specify query string params directly or through RequestParams.
 		RequestParams params = new RequestParams();
@@ -87,6 +91,11 @@ public class TwitterClient extends OAuthBaseClient {
 		params.put("since_id", Long.valueOf(sinceId));
 		if (maxId > 1)
 			params.put("max_id", Long.valueOf(maxId));
+
+		if (uid > 0 && twitterHandle != null) {
+			params.put("screen_name", twitterHandle);
+			params.put("user_id", uid);
+		}
 		client.get(apiUrl, params, handler);
 	}
 
@@ -125,6 +134,15 @@ public class TwitterClient extends OAuthBaseClient {
 	}
 
 	public void getTimeline(String which, JsonHttpResponseHandler jsonHttpResponseHandler, long sinceId, long maxId) {
+		if ("home".equals(which)) {
+			getHomeTimeline(jsonHttpResponseHandler, sinceId, maxId);
+		}
+		else if ("mentions".equals(which)) {
+			getMentionsTimeline(jsonHttpResponseHandler, sinceId, maxId);
+		}
+	}
+
+	public void getUserline(String which, JsonHttpResponseHandler jsonHttpResponseHandler, long uid, String uName, long sinceId, long maxId) {
 		if ("home".equals(which)) {
 			getHomeTimeline(jsonHttpResponseHandler, sinceId, maxId);
 		}

@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -28,6 +30,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
+import com.kaamel.simpletwitterclient.databinding.ActivityMainBinding;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
 import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
@@ -59,18 +62,21 @@ public class MainActivity extends AppCompatActivity
 
     private static User me;
 
+    ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+
+        toolbar = binding.appBar.toolbar;
         setSupportActionBar(toolbar);
         logo = getLogoView(toolbar);
 
         sharedPref = getSharedPreferences(
                 /*getString(R.string.preference_file_key)*/ "simpletwitterclient", Context.MODE_PRIVATE);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = binding.appBar.fab;
         fab.setOnClickListener(view ->
                 composeTweet(restoreTweet()));
 
@@ -80,6 +86,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.setDrawerIndicatorEnabled(false);
         toggle.setToolbarNavigationClickListener(view -> drawer.openDrawer(GravityCompat.START));
+
         toolbar.setNavigationIcon(R.drawable.ic_twitter_logo_blue_48);
 
         ActionBar sab = getSupportActionBar();
@@ -92,16 +99,16 @@ public class MainActivity extends AppCompatActivity
         toolbar.setTitleTextColor(Color.BLACK);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = binding.navView;
         navigationView.setNavigationItemSelectedListener(this);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = binding.appBar.contentMain.viewpager;
         adapter = new MainFragmentPagerAdapter(getSupportFragmentManager(), this);
         viewPager.setAdapter(adapter);
 
         // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        TabLayout tabLayout = binding.appBar.contentMain.slidingTabs;
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -457,6 +464,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void getHomeTweets(long maxId, String frgTag) {
         twitterClientHelper.getHomeTimeline(this, maxId, frgTag);
+    }
+
+    @Override
+    public void getUserTweets(long uid, String twitterHanle, long maxId, @NonNull String src) {
+        twitterClientHelper.getUserTimeline(this, uid, twitterHanle, maxId, src);
     }
 
     @Override

@@ -32,5 +32,6 @@ public interface OnFragmentInteractionListener {
     public void onLikeClicked(int position);
 
     public void getHomeTweets(long maxId, @NonNull String src);
+    public void getUserTweets(long uid, String twitterHanle, long maxId, @NonNull String src);
     public void getMentions(long maxId, @NonNull String sr);
 }

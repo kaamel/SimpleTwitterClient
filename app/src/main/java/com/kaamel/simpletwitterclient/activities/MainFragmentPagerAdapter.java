@@ -50,7 +50,7 @@ class MainFragmentPagerAdapter extends FragmentPagerAdapter {
             if (tabTitles[i].equals(tag))
                 return i;
         }
-        return 0;
+        return -1;
     }
 
     public String getTabName(int position) {

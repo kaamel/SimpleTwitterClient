@@ -46,6 +46,26 @@ public class User extends BaseModel{
     @SerializedName("friends_count")
     int friends;
 
+    @Column
+    @SerializedName("location")
+    String location;
+
+    @Column
+    @SerializedName("profile_background_image_url")
+    String profileBackgroundImageUrl;
+
+    @Column
+    @SerializedName("profile_background_color")
+    String profileBackgroundColor;
+
+    public int getFriends() {
+        return friends;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
     public String getName() {
         return name;
     }
@@ -72,6 +92,14 @@ public class User extends BaseModel{
 
     public String getDescription() {
         return description;
+    }
+
+    public String getProfileBackgroundImageUrl() {
+        return profileBackgroundImageUrl;
+    }
+
+    public String getProfileBackgroundColorString() {
+        return profileBackgroundColor;
     }
 
     public User(String name, long uid, String twitterHandle, String profileImageUrl) {
