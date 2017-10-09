@@ -2,7 +2,7 @@
 
 **Simple Twitter Client** is an android app that allows a user to view home and mentions timelines, view user profiles with user timelines, as well as compose and post a new tweet. The app utilizes [Twitter REST API](https://developer.twitter.com/en/docs/api-reference-index).
 
-Time spent: **28** hours spent in total
+Time spent: **29** hours spent in total
 
 ## User Stories
 
@@ -46,13 +46,17 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='https://i.imgur.com/W30ab7X.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' /> <img src='https://i.imgur.com/N1RD7Jg.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
 Describe any challenges encountered while building the app.
+
+Ran into some nasty Android Studio issues. It must have been caused by a cmobination of some of the libs using reflection, some coding errors on my part, variable names clashing with implicit internal variables, and problably 
+some conrner cases, too dificult for AS to handle. Lost at least 10 hours if not more, and was
+one of the contributors to running out of time at the end and not being able to finish my goal for the to-do list.
 
 ## Open-source libraries used
 
