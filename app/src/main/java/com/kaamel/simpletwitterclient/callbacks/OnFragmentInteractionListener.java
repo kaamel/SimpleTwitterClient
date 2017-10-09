@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.activities;
+package com.kaamel.simpletwitterclient.callbacks;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,4 +35,6 @@ public interface OnFragmentInteractionListener {
     public void getUserTweets(long uid, String twitterHanle, long maxId, @NonNull String src);
     public void getMentions(long maxId, @NonNull String sr);
     public void getMessages(long maxId, @NonNull String sr);
+
+    public void searchTweets(String srch, long maxId, @NonNull String sr);
 }

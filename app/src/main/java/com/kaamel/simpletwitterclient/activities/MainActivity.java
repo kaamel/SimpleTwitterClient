@@ -30,6 +30,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
+import com.kaamel.simpletwitterclient.adapters.MainFragmentPagerAdapter;
+import com.kaamel.simpletwitterclient.callbacks.MainActivityToTwitterFragmentsCallbacks;
+import com.kaamel.simpletwitterclient.callbacks.OnFragmentInteractionListener;
 import com.kaamel.simpletwitterclient.databinding.ActivityMainBinding;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
 import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
@@ -456,6 +459,11 @@ public class MainActivity extends AppCompatActivity
 
     public void getMessages(long maxId, String frgTag) {
         twitterClientHelper.getDirectMessages(this, maxId, frgTag);
+    }
+
+    @Override
+    public void searchTweets(String srch, long maxId, @NonNull String sr) {
+        twitterClientHelper.searchTweets(this, srch, maxId, sr);
     }
 
     @Override

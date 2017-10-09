@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.activities;
+package com.kaamel.simpletwitterclient.callbacks;
 
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 

@@ -1,5 +1,6 @@
 package com.kaamel.simpletwitterclient.fragments;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -8,16 +9,19 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.kaamel.simpletwitterclient.R;
-import com.kaamel.simpletwitterclient.callbacks.MainActivityToTwitterFragmentsCallbacks;
-import com.kaamel.simpletwitterclient.callbacks.OnFragmentInteractionListener;
 import com.kaamel.simpletwitterclient.adapters.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
+import com.kaamel.simpletwitterclient.callbacks.MainActivityToTwitterFragmentsCallbacks;
+import com.kaamel.simpletwitterclient.callbacks.OnFragmentInteractionListener;
 import com.kaamel.simpletwitterclient.databinding.FragmentTweetsListBinding;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.utils.Utils;
@@ -30,10 +34,10 @@ import java.util.List;
  * Activities that contain this fragment must implement the
  * {@link OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link TweetsMentionsListFragment#newInstance} factory method to
+ * Use the {@link TweetsSearchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TweetsMentionsListFragment extends Fragment implements
+public class TweetsSearchFragment extends Fragment implements
         SwipeRefreshLayout.OnRefreshListener, MainActivityToTwitterFragmentsCallbacks {
 
     FragmentTweetsListBinding binding;
@@ -43,6 +47,8 @@ public class TweetsMentionsListFragment extends Fragment implements
     private RecyclerView rvTweets;
     private TweetAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    private static String search;
 
     EndlessRecyclerViewScrollListener scrollListener;
 
@@ -62,7 +68,7 @@ public class TweetsMentionsListFragment extends Fragment implements
 
     private OnFragmentInteractionListener mListener;
 
-    public TweetsMentionsListFragment() {
+    public TweetsSearchFragment() {
         // Required empty public constructor
     }
 
@@ -75,8 +81,8 @@ public class TweetsMentionsListFragment extends Fragment implements
      * @return A new instance of fragment TweetsListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TweetsMentionsListFragment newInstance(String param1, String title) {
-        TweetsMentionsListFragment fragment = new TweetsMentionsListFragment();
+    public static TweetsSearchFragment newInstance(String param1, String title) {
+        TweetsSearchFragment fragment = new TweetsSearchFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(TITLE, title);
@@ -152,6 +158,36 @@ public class TweetsMentionsListFragment extends Fragment implements
         mListener = null;
     }
 
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.menu_search, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getActivity().getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search = query;
+                populateTimeline(0);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                return true;
+            }
+        });
+
+        return;
+    }
+
     @Override
     public void onReceivedTweet(Tweet tweet) {
         int pos = -1;
@@ -176,7 +212,8 @@ public class TweetsMentionsListFragment extends Fragment implements
             adapter.notifyItemChanged(pos);
         }
         linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), pos);
-        swipeRefreshLayout.setRefreshing(false);
+        if (search != null)
+            swipeRefreshLayout.setRefreshing(false);
 
         /*
         tweets.add(0, tweet);
@@ -238,11 +275,11 @@ public class TweetsMentionsListFragment extends Fragment implements
             //TweetModel.removeall();
             scrollListener.resetState();
             adapter.notifyDataSetChanged();
-            mListener.getMentions(maxId, title);
+            mListener.searchTweets(search, maxId, title);
             swipeRefreshLayout.setRefreshing(true);
         }
         else {
-            mListener.getMentions(maxId, title);
+            mListener.searchTweets(search, maxId, title);
         }
     }
 

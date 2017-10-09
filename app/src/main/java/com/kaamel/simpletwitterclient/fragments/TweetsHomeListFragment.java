@@ -14,8 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.kaamel.simpletwitterclient.R;
-import com.kaamel.simpletwitterclient.activities.MainActivityToTwitterFragmentsCallbacks;
-import com.kaamel.simpletwitterclient.activities.OnFragmentInteractionListener;
+import com.kaamel.simpletwitterclient.callbacks.MainActivityToTwitterFragmentsCallbacks;
+import com.kaamel.simpletwitterclient.callbacks.OnFragmentInteractionListener;
 import com.kaamel.simpletwitterclient.adapters.EndlessRecyclerViewScrollListener;
 import com.kaamel.simpletwitterclient.adapters.TweetAdapter;
 import com.kaamel.simpletwitterclient.databinding.FragmentTweetsListBinding;

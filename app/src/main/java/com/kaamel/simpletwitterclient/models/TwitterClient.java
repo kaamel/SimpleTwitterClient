@@ -109,6 +109,19 @@ public class TwitterClient extends OAuthBaseClient {
 		client.get(apiUrl, params, handler);
 	}
 
+	public void searchTweetRequest(AsyncHttpResponseHandler handler, String srch, long sinceId, long maxId, String endPoint) {
+		String apiUrl = getApiUrl(endPoint);
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("count", "25");
+		params.put("since_id", Long.valueOf(sinceId));
+		if (maxId > 1)
+			params.put("max_id", Long.valueOf(maxId));
+
+		params.put("q", srch);
+		client.get(apiUrl, params, handler);
+	}
+
 	private void userLookupById(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
 		String apiUrl = getApiUrl(END_POINT_USERS_LOOKUP);
 		// Can specify query string params directly or through RequestParams.

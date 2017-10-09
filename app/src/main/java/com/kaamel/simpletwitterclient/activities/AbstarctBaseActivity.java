@@ -13,6 +13,9 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.kaamel.simpletwitterclient.adapters.MainFragmentPagerAdapter;
+import com.kaamel.simpletwitterclient.callbacks.MainActivityToTwitterFragmentsCallbacks;
+import com.kaamel.simpletwitterclient.callbacks.OnFragmentInteractionListener;
 import com.kaamel.simpletwitterclient.fragments.ComposeTweetDialogFragment;
 import com.kaamel.simpletwitterclient.models.TwitterClientHelper;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;

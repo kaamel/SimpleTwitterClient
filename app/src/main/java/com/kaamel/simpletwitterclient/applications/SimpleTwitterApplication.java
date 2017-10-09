@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient;
+package com.kaamel.simpletwitterclient.applications;
 
 import android.app.Application;
 import android.content.Context;

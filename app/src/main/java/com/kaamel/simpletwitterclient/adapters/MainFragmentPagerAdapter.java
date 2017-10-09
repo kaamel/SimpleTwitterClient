@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient.activities;
+package com.kaamel.simpletwitterclient.adapters;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
@@ -12,11 +12,11 @@ import com.kaamel.simpletwitterclient.fragments.TweetsMentionsListFragment;
  * Created by kaamel on 10/5/17.
  */
 
-class MainFragmentPagerAdapter extends FragmentPagerAdapter {
+public class MainFragmentPagerAdapter extends FragmentPagerAdapter {
     //final int PAGE_COUNT = 4;
     //private String tabTitles[] = new String[] { "Home", "Search", "Notifications", "Messages" };
     //final int PAGE_COUNT = 4;
-    private String tabTitles[] = new String[] { "Home", "Mentions" };
+    private String tabTitles[] = new String[] { "Home", "Mentions" /*, "Search" */};
     //private String tabTitles[] = new String[] { "Notifications" };
     private Context context;
 
@@ -39,7 +39,7 @@ class MainFragmentPagerAdapter extends FragmentPagerAdapter {
             default:
                 return TweetsHomeListFragment.newInstance("", tabTitles[position]);
         }
-        //return TweetsMessagesListFragment.newInstance("", tabTitles[position]);
+        //return TweetsSearchFragment.newInstance("", tabTitles[position]);
 
     }
 

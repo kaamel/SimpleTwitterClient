@@ -1,4 +1,4 @@
-package com.kaamel.simpletwitterclient;
+package com.kaamel.simpletwitterclient.callbacks;
 
 /**
  * Created by kaamel on 10/3/17.

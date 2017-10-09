@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.kaamel.simpletwitterclient.SimpleTwitterApplication;
+import com.kaamel.simpletwitterclient.applications.SimpleTwitterApplication;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.twitteritems.TweetJsonDeserializer;
 import com.kaamel.simpletwitterclient.twitteritems.TweetJsonSerializer;
@@ -312,6 +312,68 @@ public class TwitterClientHelper {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
             }
         });
+    }
+
+    public void searchTweets(CallbackWithTweets callbackWithTweets, String srch, long maxId, String sr) {
+        searchTweets(callbackWithTweets, srch, maxId, sr, 3, 500);
+    }
+
+    public void searchTweets(CallbackWithTweets callbackWithTweets, String srch, long maxId, String sr, int retry, int delay) {
+        client.searchTweetRequest(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
+                callbackWithTweets.onSuccess(statusCode, tweet, sr);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                int count = response.length();
+                List<Tweet> tweets = new ArrayList<>();
+                for (int i = 0; i<count; i++) {
+                    try {
+                        tweets.add(gson.fromJson(response.get(i).toString(), Tweet.class));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                callbackWithTweets.onSuccess(statusCode, tweets, sr);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                callbackWithTweets.onFailure(statusCode, responseString, throwable, sr);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (statusCode == 429) {
+                    if (retry > 0) {
+                        Handler handler = new Handler();
+                        Runnable runnableCode = () -> searchTweets(callbackWithTweets, srch, maxId, sr, retry-1, 2 * delay);
+                        handler.postDelayed(runnableCode, delay);
+                        return;
+                    }
+                    callbackWithTweets.onFailure(statusCode, "Too many requests. Please wait a few minutes and try again", throwable, sr);
+                }
+                List<TwitterErrors.TwitterError> errors = gson.fromJson(errorResponse.toString(), TwitterErrors.class).errors;
+                callbackWithTweets.onFailure(statusCode, errors.get(0).errorMessage, throwable, sr);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                int count = errorResponse.length();
+                List<String> errorStrings = new ArrayList<>();
+                for (int i = 0; i<count; i++) {
+                    try {
+                        errorStrings.add(gson.fromJson(errorResponse.get(i).toString(), String.class));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                callbackWithTweets.onFailure(statusCode, errorStrings, throwable, sr);
+            }
+        }, srch, 1, maxId, sr);
     }
 
     public interface CallbackWithTweets {

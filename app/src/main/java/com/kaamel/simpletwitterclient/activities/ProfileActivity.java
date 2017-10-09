@@ -3,6 +3,7 @@ package com.kaamel.simpletwitterclient.activities;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
@@ -82,5 +83,10 @@ public class ProfileActivity extends AbstarctBaseActivity {
     }
 
     void setCurrentFragmentTag(String tag) {
+    }
+
+    @Override
+    public void searchTweets(String srch, long maxId, @NonNull String sr) {
+
     }
 }

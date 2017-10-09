@@ -16,7 +16,7 @@ import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.kaamel.simpletwitterclient.R;
-import com.kaamel.simpletwitterclient.activities.OnFragmentInteractionListener;
+import com.kaamel.simpletwitterclient.callbacks.OnFragmentInteractionListener;
 import com.kaamel.simpletwitterclient.databinding.ItemTweetBinding;
 import com.kaamel.simpletwitterclient.twitteritems.Tweet;
 import com.kaamel.simpletwitterclient.utils.RoundedCornersTransformation;
