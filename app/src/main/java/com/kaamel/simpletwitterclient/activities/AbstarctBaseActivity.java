@@ -113,7 +113,10 @@ public abstract class AbstarctBaseActivity extends AppCompatActivity
     @Override
     public void onLikeClicked(Tweet tweet) {
         //// TODO: 10/7/17
-        Toast.makeText(this, "fragment " + getCurrentFragmentTag() + " clicked like tweet " + tweet.getBody(), Toast.LENGTH_LONG).show();
+        if (tweet != null && tweet.isFavorited())
+            twitterClientHelper.postFavor(tweet.getId(), this, getCurrentFragmentTag());
+        else if (tweet != null && !tweet.isFavorited())
+            twitterClientHelper.postUnFavor(tweet.getId(), this, getCurrentFragmentTag());
     }
 
     @Override
@@ -121,6 +124,11 @@ public abstract class AbstarctBaseActivity extends AppCompatActivity
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra("tweet", Parcels.wrap(getFragmentCallback(getCurrentFragmentTag()).getTweet(position)));
         startActivityForResult(intent, SHOW_DETAIL_INTENT);
+    }
+
+    @Override
+    public void getMessages(long maxId, String frgTag) {
+        twitterClientHelper.getDirectMessages(this, maxId, frgTag);
     }
 
     @Override

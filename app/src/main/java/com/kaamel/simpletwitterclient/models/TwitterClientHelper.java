@@ -101,6 +101,14 @@ public class TwitterClientHelper {
         getTimeline("mentions", callbackWithTweets, sinceId, maxId, 3, 500, frgName);
     }
 
+    public void getDirectMessages(final CallbackWithTweets callbackWithTweets, long maxId, String frgName) {
+        getTimeline("emails", callbackWithTweets, 1, maxId, 3, 500, frgName);
+    }
+
+    public void getDirectMessages(final CallbackWithTweets callbackWithTweets, long sinceId, long maxId, String frgName) {
+        getTimeline("emails", callbackWithTweets, sinceId, maxId, 3, 500, frgName);
+    }
+
     private void getTimeline(String which, final CallbackWithTweets callbackWithTweets, final long sinceId, final long maxId, final int retry, int delay, String frgName) {
         client.getTimeline(which, new JsonHttpResponseHandler() {
             @Override
@@ -188,6 +196,68 @@ public class TwitterClientHelper {
                 Log.d("Post Tweet", errorResponse.toString());
             }
         }, text);
+    }
+
+    public void postFavor(long uid, CallbackWithTweets callbackWithTweets, String frgName) {
+        client.postFavor(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
+                callbackWithTweets.onSuccess(statusCode, tweet, frgName);
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                Log.d("Post Tweet", response.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.d("Post Tweet", responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("Post Tweet", errorResponse.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                Log.d("Post Tweet", errorResponse.toString());
+            }
+        }, uid);
+    }
+
+    public void postUnFavor(long uid, CallbackWithTweets callbackWithTweets, String frgName) {
+        client.postUnFavor(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Tweet tweet = gson.fromJson(response.toString(), Tweet.class);
+                callbackWithTweets.onSuccess(statusCode, tweet, frgName);
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                Log.d("Post Tweet", response.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.d("Post Tweet", responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("Post Tweet", errorResponse.toString());
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                Log.d("Post Tweet", errorResponse.toString());
+            }
+        }, uid);
     }
 
     public void getHomeTimeline(final CallbackWithTweets callbackWithTweets, long maxId, String frgName) {

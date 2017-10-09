@@ -48,11 +48,17 @@ public class TwitterClient extends OAuthBaseClient {
 
 	//account/verify_credentials.json
 	private static final String END_POINT_USER_PROFILE = "account/verify_credentials.json";
+	//direct_messages/events/list.json
+	private static final String END_POINT_DIRECT_MESSAGES = "direct_messages/events/list.json";
 
 	// POST statuses/update.json
 	// status=Posting from %40apigee's API test console. It's like a command line for the Twitter API! %23apitools
 	// display_coordinates=false HTTP/1.1
 	private static final String END_POINT_POST_TWEET = "statuses/update.json";
+	//favorites/create.json
+	private static final String END_POINT_POST_FAVOR = "favorites/create.json";
+	//favorites/destroy.json
+	private static final String END_POINT_POST_UNFAVOR = "favorites/destroy.json";
 
 	private static final Gson gson = new GsonBuilder().create();
 
@@ -77,6 +83,10 @@ public class TwitterClient extends OAuthBaseClient {
 
 	public void getMentionsTimeline(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
 		getCallTweetRequest(handler, -1, null, sinceId, maxId, END_POINT_MENTIONS_TIMELINE);
+	}
+
+	public void getDirectMessages(AsyncHttpResponseHandler handler, long sinceId, long maxId) {
+		getCallTweetRequest(handler, -1, null, sinceId, maxId, END_POINT_DIRECT_MESSAGES);
 	}
 
 	public void getUserTimeline(AsyncHttpResponseHandler handler, long uid, String handle, long sinceId, long maxId) {
@@ -133,6 +143,22 @@ public class TwitterClient extends OAuthBaseClient {
 		client.post(apiUrl, params, handler);
 	}
 
+	public void postFavor(AsyncHttpResponseHandler handler, long tweeterId) {
+		String apiUrl = getApiUrl(END_POINT_POST_FAVOR);
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("id", tweeterId);
+		client.post(apiUrl, params, handler);
+	}
+
+	public void postUnFavor(AsyncHttpResponseHandler handler, long tweeterId) {
+		String apiUrl = getApiUrl(END_POINT_POST_UNFAVOR);
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("id", tweeterId);
+		client.post(apiUrl, params, handler);
+	}
+
 	public void getTimeline(String which, JsonHttpResponseHandler jsonHttpResponseHandler, long sinceId, long maxId) {
 		if ("home".equals(which)) {
 			getHomeTimeline(jsonHttpResponseHandler, sinceId, maxId);
@@ -140,9 +166,12 @@ public class TwitterClient extends OAuthBaseClient {
 		else if ("mentions".equals(which)) {
 			getMentionsTimeline(jsonHttpResponseHandler, sinceId, maxId);
 		}
+		else if ("emails".equals(which)) {
+			getDirectMessages(jsonHttpResponseHandler, sinceId, maxId);
+		}
 	}
 
-	public void getUserline(String which, JsonHttpResponseHandler jsonHttpResponseHandler, long uid, String uName, long sinceId, long maxId) {
+	public void getUserTimeline(String which, JsonHttpResponseHandler jsonHttpResponseHandler, long uid, String uName, long sinceId, long maxId) {
 		if ("home".equals(which)) {
 			getHomeTimeline(jsonHttpResponseHandler, sinceId, maxId);
 		}

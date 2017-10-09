@@ -304,15 +304,6 @@ public class MainActivity extends AppCompatActivity
 
                 }
             }, -1, null);
-
-        } else if (id == R.id.nav_slideshow) {
-
-        //} else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -425,8 +416,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLikeClicked(Tweet tweet) {
-        //// TODO: 10/7/17
-        Toast.makeText(this, "fragment " + currentFragmentTag + " clicked like tweet " + tweet.getBody(), Toast.LENGTH_LONG).show();
+        if (tweet != null && tweet.isFavorited())
+            twitterClientHelper.postUnFavor(tweet.getId(), this, currentFragmentTag);
+        else if (tweet != null && !tweet.isFavorited())
+            twitterClientHelper.postFavor(tweet.getId(), this, currentFragmentTag);
     }
 
     @Override
@@ -459,6 +452,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLikeClicked(int position) {
         onLikeClicked(getFragmentCallback(currentFragmentTag).getTweet(position));
+    }
+
+    public void getMessages(long maxId, String frgTag) {
+        twitterClientHelper.getDirectMessages(this, maxId, frgTag);
     }
 
     @Override

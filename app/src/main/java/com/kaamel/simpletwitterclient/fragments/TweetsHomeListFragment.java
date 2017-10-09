@@ -157,10 +157,28 @@ public class TweetsHomeListFragment extends Fragment implements
 
     @Override
     public void onReceivedTweet(Tweet tweet) {
-        tweets.add(0, tweet);
-        tweet.save();
-        adapter.notifyItemInserted(0);
-        linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), 0);
+        int pos = -1;
+        int size = tweets.size();
+        if (tweets.size()> 0) {
+            for (int i = 0; i< size; i++) {
+                if (tweet.getId() == tweets.get(i).getId()) {
+                    tweets.set(i, tweet);
+                    pos = i;
+                    break;
+                }
+            }
+        }
+        if (pos < 0) {
+            pos = 0;
+            tweets.add(0, tweet);
+            tweet.save();
+            adapter.notifyItemInserted(0);
+        }
+        else {
+            tweet.update();
+            adapter.notifyItemChanged(pos);
+        }
+        linearLayoutManager.smoothScrollToPosition(rvTweets, new RecyclerView.State(), pos);
         swipeRefreshLayout.setRefreshing(false);
     }
 

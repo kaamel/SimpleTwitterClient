@@ -141,6 +141,20 @@ public class DetailActivity extends AppCompatActivity implements
 
         View.OnClickListener userLikeListener = v -> {
             sendToMainActivity(tweet, "like", tweet.getUser().getName());
+            if (tweet.isFavorited()) {
+                int count = tweet.getFavoritCount()-1;
+                if (tweet.getFavoritCount() > 0)
+                    tvLikeCount.setText(String.valueOf(tweet.getFavoritCount()));
+                else {
+                    tvLikeCount.setText("");
+                    ibLike.setImageResource(R.drawable.ic_action_twitter_like);
+                }
+            }
+            else {
+                int count = tweet.getFavoritCount()+1;
+                tvLikeCount.setText(String.valueOf(tweet.getFavoritCount()));
+                ibLike.setImageResource(R.drawable.ic_action_twitter_like_red);
+            }
         };
 
         View.OnClickListener userEmailListener = v -> {

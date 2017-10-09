@@ -16,7 +16,7 @@ class MainFragmentPagerAdapter extends FragmentPagerAdapter {
     //final int PAGE_COUNT = 4;
     //private String tabTitles[] = new String[] { "Home", "Search", "Notifications", "Messages" };
     //final int PAGE_COUNT = 4;
-    private String tabTitles[] = new String[] { "Home", "Notifications" };
+    private String tabTitles[] = new String[] { "Home", "Mentions" };
     //private String tabTitles[] = new String[] { "Notifications" };
     private Context context;
 
@@ -35,8 +35,12 @@ class MainFragmentPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case 1:
                 return TweetsMentionsListFragment.newInstance("", tabTitles[position]);
+            case 0:
+            default:
+                return TweetsHomeListFragment.newInstance("", tabTitles[position]);
         }
-        return TweetsHomeListFragment.newInstance("", tabTitles[position]);
+        //return TweetsMessagesListFragment.newInstance("", tabTitles[position]);
+
     }
 
     @Override
